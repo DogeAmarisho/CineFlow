@@ -22,25 +22,33 @@
         
         <section id="cartelera">
             <?php
-                // Aquí más adelante llamaremos a la Clase Pelicula
-                // Por ahora, simulamos una película manual para ver la estructura
+            // 1. Incluyes las clases
+            require_once 'config/Database.php';
+            require_once 'classes/Pelicula.php';
+
+            // 2. Instancias la base de datos y obtienes la conexión
+            $database = new Database();
+            $db = $database->getConnection();
+
+            // 3. Instancias el objeto Película pasándole la conexión
+            $pelicula = new Pelicula($db);
+
+            // 4. Llamas al método
+            $stmt = $pelicula->listarCartelera();
+
+            // 5. Dibujas los resultados con un ciclo while
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                extract($row);
+                echo "<article class='pelicula'>";
+                echo "<img src='{$poster}' alt='{$titulo}' width='150'>";
+                echo "<h3>{$titulo}</h3>";
+                echo "<p>Duración: {$duracion} min</p>";
+                echo "<a href='reserva.php?id={$id_pelicula}'>Ver horarios y reservar</a>";
+                echo "</article>";
+            }
             ?>
             
-            <article class="pelicula">
-                <img src="assets/img/peli-ejemplo.jpg" alt="Poster de Película" width="150">
-                <h3>Título de la Película</h3>
-                <p>Duración: 120 min</p>
-                <p>Género: Acción / Ciencia Ficción</p>
-                <a href="reserva.php?id=1">Ver horarios y reservar</a>
-            </article>
             
-            <article class="pelicula">
-                <img src="assets/img/peli-ejemplo-2.jpg" alt="Poster de Película" width="150">
-                <h3>Título de la Película 2</h3>
-                <p>Duración: 105 min</p>
-                <p>Género: Comedia</p>
-                <a href="reserva.php?id=2">Ver horarios y reservar</a>
-            </article>
         </section>
     </main>
 
