@@ -29,7 +29,7 @@ require_once __DIR__ . '/includes/funciones.php';
 // ─────────────────────────────────────────────────────────────
 //  Obtener todas las reservas del usuario
 // ─────────────────────────────────────────────────────────────
-$todas = obtenerReservasUsuario((int)$_SESSION['usuario_id']);
+$todas = obtenerReservasUsuario((int)($_SESSION['usuario_id'] ?? USUARIO_PRUEBA_ID));
 
 // ─────────────────────────────────────────────────────────────
 //  Agrupar filas por código de reserva

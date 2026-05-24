@@ -554,11 +554,9 @@ require_once __DIR__ . '/includes/header.php';
             🎬 Ver cartelera
         </a>
 
-        <?php if (estaAutenticado()): ?>
-            <a href="mis-reservas.php" class="btn btn-secundario">
-                📋 Mis reservas
-            </a>
-        <?php endif; ?>
+        <a href="mis-reservas.php" class="btn btn-secundario">
+            📋 Mis reservas
+        </a>
     </div>
 
 </div><!-- /confirmacion-wrap -->

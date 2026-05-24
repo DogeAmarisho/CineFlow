@@ -346,15 +346,9 @@ require_once __DIR__ . '/includes/header.php';
                 <a href="cartelera.php" class="btn btn-primario btn-lg">
                     Ver cartelera
                 </a>
-                <?php if (!estaAutenticado()): ?>
-                    <a href="login.php" class="btn btn-secundario btn-lg">
-                        Iniciar sesión
-                    </a>
-                <?php else: ?>
-                    <a href="mis-reservas.php" class="btn btn-secundario btn-lg">
-                        Mis reservas
-                    </a>
-                <?php endif; ?>
+                <a href="mis-reservas.php" class="btn btn-secundario btn-lg">
+                    Mis reservas
+                </a>
             </div>
 
         </div>
