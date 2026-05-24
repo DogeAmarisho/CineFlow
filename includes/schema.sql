@@ -195,7 +195,7 @@ CREATE TABLE reservas (
 -- Administrador (password: Admin123!)
 INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES
 ('Administrador', 'admin@cineflow.cl',
- '$2y$12$GVgAUjB9rYkfRW.O/wXHgONwqrQzBqPzFm0LfFp8WKH9XrZ1FVkCu', 'admin');
+ '$2y$12$xbi1Id03PqJKAunr0LcjIOimP8bNgb72qgraeidhGOVaMyQsTFwT2', 'admin');
 
 -- Películas
 INSERT INTO peliculas (titulo, genero, sinopsis, clasificacion, duracion_min, imagen, fecha_estreno) VALUES
