@@ -1,0 +1,102 @@
+# ============================================================
+#  CineFlow — Configuración Apache (.htaccess)
+# ============================================================
+#  Propósito : Seguridad, redirecciones y rendimiento.
+#  Motor     : Apache con mod_rewrite y mod_headers activos.
+#              En XAMPP verificar en httpd.conf:
+#              LoadModule rewrite_module modules/mod_rewrite.so
+#              AllowOverride All  (en el bloque <Directory>)
+# ============================================================
+
+
+# ── Ocultar listado de directorios ───────────────────────────
+Options -Indexes
+Options -MultiViews
+
+
+# ── Bloquear acceso a archivos sensibles ─────────────────────
+<FilesMatch "(\.env|\.sql|\.log|\.md|composer\.(json|lock)|\.git)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+
+# ── Bloquear acceso a carpetas internas ──────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Carpeta de logs: solo acceso interno (nunca desde navegador)
+    RewriteRule ^logs(/.*)?$   - [F,L]
+
+    # Repositorio Git
+    RewriteRule ^\.git(/.*)?$  - [F,L]
+
+    # ── (Opcional) Forzar HTTPS en producción ───────────────
+    # Descomentar solo cuando el servidor tenga SSL válido.
+    # En XAMPP local mantener comentado.
+    #
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # ── Eliminar barra final en URLs (excepto la raíz "/") ──
+    RewriteCond %{REQUEST_URI} ^/(.+)/$
+    RewriteRule ^ /%1 [R=301,L]
+</IfModule>
+
+
+# ── Headers de seguridad HTTP ────────────────────────────────
+<IfModule mod_headers.c>
+    # Impide que el navegador adivine el tipo MIME
+    Header always set X-Content-Type-Options  "nosniff"
+
+    # Bloquea la carga de la página dentro de un <iframe> (anti-clickjacking)
+    Header always set X-Frame-Options         "SAMEORIGIN"
+
+    # Activa el filtro XSS integrado del navegador (capa adicional)
+    Header always set X-XSS-Protection        "1; mode=block"
+
+    # Controla cuánto Referer se filtra al navegar
+    Header always set Referrer-Policy         "strict-origin-when-cross-origin"
+
+    # Elimina la cabecera que revela la versión de PHP
+    Header unset X-Powered-By
+
+    # Sin caché para páginas PHP (fundamental para PRG y mensajes flash)
+    <FilesMatch "\.php$">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Header set Pragma        "no-cache"
+    </FilesMatch>
+</IfModule>
+
+
+# ── Caché de assets estáticos ────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css               "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/jpeg             "access plus 1 month"
+    ExpiresByType image/png              "access plus 1 month"
+    ExpiresByType image/webp             "access plus 1 month"
+    ExpiresByType image/svg+xml          "access plus 1 week"
+</IfModule>
+
+
+# ── Compresión GZIP ──────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/plain
+</IfModule>
+
+
+# ── Codificación por defecto ─────────────────────────────────
+AddDefaultCharset UTF-8
+
+
+# ── Páginas de error personalizadas ─────────────────────────
+# (Descomentar cuando se creen estos archivos)
+# ErrorDocument 403 /error/403.php
+# ErrorDocument 404 /error/404.php
+# ErrorDocument 500 /error/500.php

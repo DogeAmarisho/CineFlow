@@ -1,0 +1,658 @@
+/* ============================================================
+ *  CineFlow — Hoja de estilos global
+ * ============================================================
+ *  Archivo   : assets/css/estilo.css
+ *  Propósito : Estilos base compartidos por todas las vistas.
+ *              Cada página puede añadir un bloque <style>
+ *              propio solo para lo que sea exclusivo de ella.
+ *
+ *  ORGANIZACIÓN:
+ *    1.  Variables CSS (design tokens)
+ *    2.  Reset y tipografía base
+ *    3.  Utilidades generales
+ *    4.  Header / navegación
+ *    5.  Footer
+ *    6.  Badges (clasificación, estado)
+ *    7.  Alertas y mensajes flash
+ *    8.  Botones
+ *    9.  Formularios
+ *    10. Tarjetas genéricas
+ *    11. Breadcrumb
+ *    12. Spinner de carga
+ *    13. Responsive helpers
+ *  Autores   : Cristóbal Yáñez y Álvaro Hormazabal
+ * ============================================================ */
+
+
+/* ── 1. VARIABLES CSS (design tokens) ───────────────────────── */
+:root {
+    /* Paleta principal */
+    --primario:          #e50914;
+    --primario-oscuro:   #c0070f;
+    --primario-suave:    rgba(229, 9, 20, .15);
+
+    /* Fondos */
+    --oscuro:            #141414;
+    --superficie:        #1f1f1f;
+    --superficie-alt:    #252525;
+    --overlay:           rgba(0, 0, 0, .75);
+
+    /* Bordes */
+    --borde:             #333;
+    --borde-suave:       #2a2a2a;
+
+    /* Texto */
+    --texto:             #e5e5e5;
+    --texto-suave:       #aaa;
+    --texto-muy-suave:   #666;
+
+    /* Colores semánticos */
+    --verde:             #2ecc71;
+    --verde-oscuro:      #0d2e1a;
+    --azul:              #3498db;
+    --azul-oscuro:       #0d1e2e;
+    --amarillo:          #f39c12;
+    --amarillo-oscuro:   #1a1200;
+    --rojo:              #e74c3c;
+    --rojo-oscuro:       #2e0d0d;
+
+    /* Asientos (reserva.php) */
+    --libre:             #2a5c3f;
+    --libre-borde:       #2ecc71;
+    --ocupado:           #3a1a1a;
+    --ocupado-borde:     #c0392b;
+    --seleccionado:      #1a3a5c;
+    --seleccionado-borde:#3498db;
+    --preferencial:      #3a2e0a;
+    --preferencial-borde:#f39c12;
+
+    /* Tipografía */
+    --fuente:            'Segoe UI', Arial, sans-serif;
+    --fuente-mono:       'Courier New', Courier, monospace;
+
+    /* Layout */
+    --ancho-max:         1200px;
+    --radio:             8px;
+    --radio-lg:          12px;
+    --sombra:            0 4px 16px rgba(0, 0, 0, .4);
+    --sombra-lg:         0 8px 32px rgba(0, 0, 0, .6);
+
+    /* Transiciones */
+    --transicion:        .2s ease;
+}
+
+
+/* ── 2. RESET Y TIPOGRAFÍA BASE ─────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin:     0;
+    padding:    0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--oscuro);
+    color:            var(--texto);
+    font-family:      var(--fuente);
+    font-size:        16px;
+    line-height:      1.6;
+    min-height:       100vh;
+    display:          flex;
+    flex-direction:   column;   /* footer pegado al fondo */
+}
+
+main {
+    flex: 1;                    /* ocupa todo el espacio sobrante */
+}
+
+a {
+    color:           var(--primario);
+    text-decoration: none;
+    transition:      color var(--transicion);
+}
+
+a:hover {
+    color: var(--primario-oscuro);
+}
+
+img {
+    display:   block;
+    max-width: 100%;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+
+/* ── 3. UTILIDADES GENERALES ────────────────────────────────── */
+
+/* Contenedor centrado */
+.contenedor {
+    max-width: var(--ancho-max);
+    margin:    0 auto;
+    padding:   0 20px;
+}
+
+/* Texto */
+.texto-primario  { color: var(--primario); }
+.texto-suave     { color: var(--texto-suave); }
+.texto-verde     { color: var(--verde); }
+.texto-rojo      { color: var(--rojo); }
+.texto-amarillo  { color: var(--amarillo); }
+.texto-centrado  { text-align: center; }
+
+/* Espaciado */
+.mt-8  { margin-top:    8px;  }
+.mt-16 { margin-top:   16px;  }
+.mt-24 { margin-top:   24px;  }
+.mb-8  { margin-bottom: 8px;  }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+
+/* Separador horizontal */
+.divisor {
+    border:     none;
+    border-top: 1px solid var(--borde);
+    margin:     24px 0;
+}
+
+/* Ocultar visualmente pero accesible para lectores de pantalla */
+.sr-only {
+    position:  absolute;
+    width:     1px;
+    height:    1px;
+    padding:   0;
+    margin:    -1px;
+    overflow:  hidden;
+    clip:      rect(0, 0, 0, 0);
+    border:    0;
+}
+
+
+/* ── 4. HEADER / NAVEGACIÓN ─────────────────────────────────── */
+.site-header {
+    background-color: rgba(20, 20, 20, .95);
+    border-bottom:    2px solid var(--primario);
+    padding:          14px 24px;
+    display:          flex;
+    align-items:      center;
+    justify-content:  space-between;
+    gap:              16px;
+    position:         sticky;
+    top:              0;
+    z-index:          100;
+    backdrop-filter:  blur(6px);
+}
+
+/* Logo */
+.logo {
+    font-size:      1.6rem;
+    font-weight:    700;
+    color:          var(--primario);
+    letter-spacing: 1px;
+    text-decoration: none;
+    flex-shrink:    0;
+}
+
+.logo span {
+    color: var(--texto);
+}
+
+.logo:hover {
+    color: var(--primario);   /* override del a:hover global */
+    opacity: .85;
+}
+
+/* Navegación principal */
+.nav-principal {
+    display:     flex;
+    align-items: center;
+    gap:         20px;
+}
+
+.nav-principal a {
+    color:          var(--texto-suave);
+    font-size:      .9rem;
+    font-weight:    500;
+    transition:     color var(--transicion);
+    white-space:    nowrap;
+}
+
+.nav-principal a:hover,
+.nav-principal a.activo {
+    color: var(--texto);
+}
+
+/* Área de usuario (derecha del header) */
+.nav-usuario {
+    display:     flex;
+    align-items: center;
+    gap:         14px;
+    font-size:   .88rem;
+}
+
+.nav-usuario .bienvenida {
+    color: var(--texto-suave);
+}
+
+.nav-usuario .bienvenida strong {
+    color: var(--texto);
+}
+
+/* Botón "Cerrar sesión" en el header */
+.btn-logout {
+    color:       var(--primario);
+    font-size:   .88rem;
+    font-weight: 600;
+    border:      1px solid var(--primario);
+    padding:     4px 12px;
+    border-radius: var(--radio);
+    transition:  background var(--transicion), color var(--transicion);
+}
+
+.btn-logout:hover {
+    background: var(--primario);
+    color:      #fff;
+}
+
+
+/* ── 5. FOOTER ──────────────────────────────────────────────── */
+.site-footer {
+    background:    var(--superficie);
+    border-top:    1px solid var(--borde);
+    padding:       28px 24px;
+    margin-top:    auto;
+    text-align:    center;
+    color:         var(--texto-suave);
+    font-size:     .82rem;
+    line-height:   1.8;
+}
+
+.site-footer a {
+    color: var(--texto-suave);
+}
+
+.site-footer a:hover {
+    color: var(--texto);
+}
+
+.footer-links {
+    display:        flex;
+    justify-content: center;
+    gap:            20px;
+    flex-wrap:      wrap;
+    margin-bottom:  12px;
+}
+
+
+/* ── 6. BADGES ──────────────────────────────────────────────── */
+.badge {
+    display:        inline-block;
+    font-size:      .7rem;
+    font-weight:    700;
+    padding:        3px 8px;
+    border-radius:  4px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    vertical-align: middle;
+}
+
+/* Clasificación etaria */
+.badge-verde    { background: var(--verde);    color: #0a2e1a; }
+.badge-azul     { background: var(--azul);     color: #fff;    }
+.badge-amarillo { background: var(--amarillo); color: #1a0e00; }
+.badge-rojo     { background: var(--rojo);     color: #fff;    }
+.badge-gris     { background: #555;            color: #eee;    }
+
+/* Estado de reserva (variante más grande) */
+.badge-estado {
+    font-size: .78rem;
+    padding:   4px 10px;
+}
+
+
+/* ── 7. ALERTAS Y MENSAJES FLASH ────────────────────────────── */
+.alerta {
+    padding:       14px 18px;
+    border-radius: var(--radio);
+    border-left:   4px solid;
+    font-size:     .9rem;
+    line-height:   1.5;
+    margin-bottom: 20px;
+}
+
+.alerta-exito {
+    background:  var(--verde-oscuro);
+    border-color: var(--verde);
+    color:       var(--verde);
+}
+
+.alerta-error {
+    background:  var(--rojo-oscuro);
+    border-color: var(--rojo);
+    color:       var(--rojo);
+}
+
+.alerta-aviso {
+    background:  var(--amarillo-oscuro);
+    border-color: var(--amarillo);
+    color:       var(--amarillo);
+}
+
+.alerta-info {
+    background:  var(--azul-oscuro);
+    border-color: var(--azul);
+    color:       var(--azul);
+}
+
+/* Código de reserva dentro de una alerta-exito */
+.codigo-reserva {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.codigo-reserva span {
+    display:        inline-block;
+    font-family:    var(--fuente-mono);
+    font-size:      1.4rem;
+    font-weight:    700;
+    letter-spacing: 3px;
+    color:          var(--amarillo);
+    background:     var(--amarillo-oscuro);
+    padding:        8px 18px;
+    border-radius:  var(--radio);
+    border:         1px solid var(--amarillo);
+}
+
+.codigo-reserva p {
+    font-size:  .78rem;
+    color:      var(--texto-suave);
+    margin-top: 6px;
+}
+
+
+/* ── 8. BOTONES ─────────────────────────────────────────────── */
+
+/* Base */
+.btn {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             8px;
+    padding:         10px 22px;
+    border-radius:   var(--radio);
+    font-size:       .95rem;
+    font-weight:     600;
+    cursor:          pointer;
+    border:          none;
+    text-decoration: none;
+    transition:      background var(--transicion),
+                     color      var(--transicion),
+                     opacity    var(--transicion),
+                     transform  var(--transicion);
+    white-space:     nowrap;
+}
+
+.btn:disabled {
+    opacity:       .5;
+    cursor:        not-allowed;
+    pointer-events: none;
+}
+
+/* Variantes */
+.btn-primario {
+    background: var(--primario);
+    color:      #fff;
+}
+.btn-primario:hover:not(:disabled) {
+    background: var(--primario-oscuro);
+    color:      #fff;
+}
+
+.btn-secundario {
+    background: transparent;
+    color:      var(--texto);
+    border:     1px solid var(--borde);
+}
+.btn-secundario:hover:not(:disabled) {
+    background:   var(--superficie-alt);
+    border-color: var(--texto-suave);
+    color:        var(--texto);
+}
+
+.btn-peligro {
+    background: var(--rojo);
+    color:      #fff;
+}
+.btn-peligro:hover:not(:disabled) {
+    background: #c0392b;
+    color:      #fff;
+}
+
+/* Tamaños */
+.btn-sm { padding: 6px 14px; font-size: .82rem; }
+.btn-lg { padding: 14px 28px; font-size: 1.05rem; }
+
+/* Bloque completo */
+.btn-bloque { width: 100%; }
+
+
+/* ── 9. FORMULARIOS ─────────────────────────────────────────── */
+.form-group {
+    display:       flex;
+    flex-direction: column;
+    gap:           6px;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size:   .88rem;
+    color:       var(--texto-suave);
+    font-weight: 500;
+}
+
+/* Etiqueta de campo obligatorio */
+.form-group label .requerido {
+    color:      var(--primario);
+    margin-left: 2px;
+}
+
+.form-control {
+    background:    var(--superficie-alt);
+    color:         var(--texto);
+    border:        1px solid var(--borde);
+    border-radius: var(--radio);
+    padding:       10px 14px;
+    font-size:     .95rem;
+    font-family:   var(--fuente);
+    transition:    border-color var(--transicion), box-shadow var(--transicion);
+    width:         100%;
+}
+
+.form-control:focus {
+    outline:      none;
+    border-color: var(--primario);
+    box-shadow:   0 0 0 3px var(--primario-suave);
+}
+
+.form-control::placeholder {
+    color: var(--texto-muy-suave);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    opacity: .6;
+    cursor:  not-allowed;
+}
+
+/* Select */
+select.form-control {
+    appearance:      none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23aaa' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat:   no-repeat;
+    background-position: right 14px center;
+    padding-right:       36px;
+    cursor:              pointer;
+}
+
+/* Mensaje de error bajo un campo */
+.campo-error {
+    font-size: .8rem;
+    color:     var(--rojo);
+    margin-top: 2px;
+}
+
+/* Caja de login / registro centrada */
+.form-card {
+    background:    var(--superficie);
+    border:        1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    padding:       32px;
+    width:         100%;
+    max-width:     440px;
+    margin:        0 auto;
+}
+
+.form-card h1 {
+    font-size:     1.4rem;
+    margin-bottom: 6px;
+}
+
+.form-card .subtitulo {
+    color:         var(--texto-suave);
+    font-size:     .88rem;
+    margin-bottom: 28px;
+}
+
+
+/* ── 10. TARJETAS GENÉRICAS ─────────────────────────────────── */
+.card {
+    background:    var(--superficie);
+    border:        1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    overflow:      hidden;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-header {
+    padding:       16px 20px;
+    border-bottom: 1px solid var(--borde);
+    font-weight:   700;
+}
+
+.card-footer {
+    padding:    16px 20px;
+    border-top: 1px solid var(--borde);
+    font-size:  .85rem;
+    color:      var(--texto-suave);
+}
+
+
+/* ── 11. BREADCRUMB ─────────────────────────────────────────── */
+.breadcrumb {
+    display:     flex;
+    align-items: center;
+    gap:         6px;
+    font-size:   .85rem;
+    color:       var(--texto-suave);
+    flex-wrap:   wrap;
+}
+
+.breadcrumb a {
+    color:      var(--primario);
+    transition: opacity var(--transicion);
+}
+
+.breadcrumb a:hover {
+    opacity: .8;
+    color:   var(--primario);
+}
+
+.breadcrumb-sep {
+    color: var(--borde);
+}
+
+
+/* ── 12. SPINNER DE CARGA ───────────────────────────────────── */
+.spinner {
+    display:       inline-block;
+    width:         20px;
+    height:        20px;
+    border:        3px solid var(--borde);
+    border-top-color: var(--primario);
+    border-radius: 50%;
+    animation:     girar .7s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}
+
+/* Overlay de carga de página completa */
+.cargando-overlay {
+    position:        fixed;
+    inset:           0;
+    background:      var(--overlay);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    z-index:         999;
+}
+
+.cargando-overlay .spinner {
+    width:  40px;
+    height: 40px;
+    border-width: 4px;
+}
+
+
+/* ── 13. RESPONSIVE HELPERS ─────────────────────────────────── */
+
+/* Ocultar en móvil */
+@media (max-width: 600px) {
+    .ocultar-movil { display: none !important; }
+
+    .site-header {
+        padding: 12px 16px;
+    }
+
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    .nav-principal {
+        gap: 12px;
+    }
+
+    .form-card {
+        padding: 24px 18px;
+    }
+}
+
+/* Ocultar en escritorio */
+@media (min-width: 601px) {
+    .ocultar-escritorio { display: none !important; }
+}
+
+/* Grid de 2 columnas a 1 en móvil */
+@media (max-width: 768px) {
+    .grid-2-1 {
+        grid-template-columns: 1fr !important;
+    }
+}
