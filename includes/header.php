@@ -38,14 +38,7 @@ $titulo_pagina ??= 'CineFlow';
 $css_extra     ??= '';
 $nav_activo    ??= '';
 
-// Nombre del usuario para saludar en el header
-$nombre_sesion = '';
-if (estaAutenticado()) {
-    $nombre_sesion = htmlspecialchars(
-        $_SESSION['nombre'] ?? 'Usuario',
-        ENT_QUOTES, 'UTF-8'
-    );
-}
+// Sin sistema de login — acceso libre a todas las páginas
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -80,43 +73,17 @@ if (estaAutenticado()) {
         Cine<span>Flow</span>
     </a>
 
-    <!-- Navegación principal (centro) -->
+    <!-- Navegación principal -->
     <nav class="nav-principal" aria-label="Navegación principal">
+        <a href="index.php"
+           class="<?= $nav_activo === 'inicio' ? 'activo' : '' ?>">
+            🏠 Inicio
+        </a>
         <a href="cartelera.php"
            class="<?= $nav_activo === 'cartelera' ? 'activo' : '' ?>">
             🎬 Cartelera
         </a>
-
-        <?php if (estaAutenticado()): ?>
-            <a href="mis-reservas.php"
-               class="<?= $nav_activo === 'mis-reservas' ? 'activo' : '' ?>">
-                🎟 Mis reservas
-            </a>
-        <?php endif; ?>
-
-        <?php if (esAdmin()): ?>
-            <a href="admin/index.php"
-               class="<?= $nav_activo === 'admin' ? 'activo' : '' ?> texto-primario">
-                ⚙ Admin
-            </a>
-        <?php endif; ?>
     </nav>
-
-    <!-- Área de usuario (derecha) -->
-    <div class="nav-usuario" aria-label="Cuenta de usuario">
-        <?php if (estaAutenticado()): ?>
-            <span class="bienvenida ocultar-movil">
-                Hola, <strong><?= $nombre_sesion ?></strong>
-            </span>
-            <a href="logout.php?token=<?= generarTokenCsrf() ?>" class="btn-logout">
-                Salir
-            </a>
-        <?php else: ?>
-            <a href="login.php" class="btn btn-primario btn-sm">
-                Iniciar sesión
-            </a>
-        <?php endif; ?>
-    </div>
 
 </header>
 <!-- /site-header -->

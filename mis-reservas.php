@@ -24,10 +24,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/funciones.php';
 
-// ─────────────────────────────────────────────────────────────
-//  Proteger la ruta: solo usuarios autenticados
-// ─────────────────────────────────────────────────────────────
-requerirLogin('mis-reservas.php');
+// Acceso libre — sin requerimiento de login
 
 // ─────────────────────────────────────────────────────────────
 //  Obtener todas las reservas del usuario
