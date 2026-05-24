@@ -132,6 +132,12 @@ require_once __DIR__ . '/includes/header.php';
         color:        var(--rojo);
     }
 
+    .estado-banner.utilizada {
+        background:   rgba(52,152,219,.1);
+        border-color: #3498db;
+        color:        #3498db;
+    }
+
     .estado-icono {
         font-size:     3.5rem;
         display:       block;
@@ -342,6 +348,7 @@ require_once __DIR__ . '/includes/header.php';
                 'pendiente'  => '⏳',
                 'cancelada'  => '❌',
                 'expirada'   => '⌛',
+                'utilizada'  => '✅',
                 default      => '🎟'
             } ?>
         </span>
@@ -352,6 +359,7 @@ require_once __DIR__ . '/includes/header.php';
                 'pendiente'  => 'Reserva pendiente de pago',
                 'cancelada'  => 'Reserva cancelada',
                 'expirada'   => 'Reserva expirada',
+                'utilizada'  => '¡Ticket utilizado!',
                 default      => 'Estado desconocido'
             } ?>
         </p>
@@ -362,6 +370,7 @@ require_once __DIR__ . '/includes/header.php';
                 'pendiente'  => 'Tienes tiempo limitado para completar el pago.',
                 'cancelada'  => 'Esta reserva fue cancelada. El asiento está disponible nuevamente.',
                 'expirada'   => 'El tiempo de pago expiró. El asiento fue liberado.',
+                'utilizada'  => 'Este ticket ya fue escaneado en taquilla.',
                 default      => ''
             } ?>
         </p>
@@ -516,6 +525,17 @@ require_once __DIR__ . '/includes/header.php';
                 </span>
             </div>
 
+            <?php if (!empty($primera['nombre_cliente'])): ?>
+                <div class="dato-fila">
+                    <span class="dato-clave">Nombre</span>
+                    <span class="dato-valor"><?= esc($primera['nombre_cliente']) ?></span>
+                </div>
+                <div class="dato-fila">
+                    <span class="dato-clave">Correo</span>
+                    <span class="dato-valor" style="font-size:.88rem;"><?= esc($primera['email_cliente']) ?></span>
+                </div>
+            <?php endif; ?>
+
             <?php if ($estado === 'pendiente' && $fecha_expiracion): ?>
                 <div class="dato-fila">
                     <span class="dato-clave">Expira a las</span>
@@ -554,7 +574,7 @@ require_once __DIR__ . '/includes/header.php';
             🎬 Ver cartelera
         </a>
 
-        <a href="mis-reservas.php" class="btn btn-secundario">
+        <a href="consultar-reserva.php" class="btn btn-secundario">
             📋 Mis reservas
         </a>
     </div>

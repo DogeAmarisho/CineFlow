@@ -83,6 +83,10 @@ $nav_activo    ??= '';
            class="<?= $nav_activo === 'cartelera' ? 'activo' : '' ?>">
             🎬 Cartelera
         </a>
+        <a href="consultar-reserva.php"
+           class="<?= $nav_activo === 'consultar' ? 'activo' : '' ?>">
+            🔍 Mis reservas
+        </a>
     </nav>
 
 </header>

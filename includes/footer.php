@@ -35,6 +35,8 @@ $js_extra ??= '';
     <p>© <?= date('Y') ?> CineFlow &middot; Todos los derechos reservados.</p>
     <p class="mt-8" style="font-size:.75rem;">
         Desarrollado por Cristóbal Yáñez y Álvaro Hormazabal
+        &nbsp;&middot;&nbsp;
+        <a href="admin/login.php" style="color:var(--texto-muy-suave);">Administración</a>
     </p>
 
 </footer>

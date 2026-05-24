@@ -4,22 +4,19 @@
  *  CineFlow - Plataforma de Gestión y Venta de Entradas
  * ============================================================
  *  Archivo   : includes/funciones.php
- *  Propósito : Biblioteca de funciones de utilidad compartidas
- *              por todas las vistas del proyecto.
+ *  Versión   : 2.0 — Clientes invitados (nombre + email)
+ *  Propósito : Biblioteca de funciones de utilidad compartidas.
  *
- *  ORGANIZACIÓN:
+ *  SECCIONES:
  *    A) Formateo y presentación
  *    B) Seguridad y sanitización
  *    C) Sesión y autenticación
- *    D) Consultas de soporte (lecturas simples reutilizables)
+ *    D) Consultas de soporte
  *    E) Notificaciones flash
- *
- *  Depende de: config.php  (debe incluirse antes que este archivo)
  *  Autores   : Cristóbal Yáñez y Álvaro Hormazabal
  * ============================================================
  */
 
-// Guardia: evitar doble inclusión
 if (defined('FUNCIONES_CARGADAS')) return;
 define('FUNCIONES_CARGADAS', true);
 
@@ -68,10 +65,11 @@ function etiquetaFecha(string $fecha_iso): string
 function etiquetaEstadoReserva(string $estado): string
 {
     return match($estado) {
-        'pendiente'  => 'Pendiente de pago',
+        'pendiente'  => 'Pendiente',
         'confirmada' => 'Confirmada',
         'cancelada'  => 'Cancelada',
         'expirada'   => 'Expirada',
+        'utilizada'  => 'Utilizada ✓',
         default      => ucfirst($estado),
     };
 }
@@ -81,6 +79,7 @@ function claseBadgeEstado(string $estado): string
     return match($estado) {
         'confirmada' => 'badge-verde',
         'pendiente'  => 'badge-amarillo',
+        'utilizada'  => 'badge-azul',
         'cancelada',
         'expirada'   => 'badge-rojo',
         default      => 'badge-gris',
@@ -157,6 +156,9 @@ function redirigir(string $url, int $codigo = 302): void
 //  D) CONSULTAS DE SOPORTE
 // ═════════════════════════════════════════════════════════════
 
+/**
+ * Obtiene los datos básicos de un administrador desde la BD.
+ */
 function obtenerUsuario(int $usuario_id): ?array
 {
     $pdo = obtenerConexion();
@@ -177,7 +179,12 @@ function obtenerUsuario(int $usuario_id): ?array
     }
 }
 
-function obtenerReservasUsuario(int $usuario_id): array
+/**
+ * Obtiene todas las reservas asociadas a un correo electrónico.
+ * Ordenadas de más reciente a más antigua.
+ * Reemplaza a obtenerReservasUsuario() (v1.0).
+ */
+function obtenerReservasPorEmail(string $email): array
 {
     $pdo = obtenerConexion();
     try {
@@ -188,6 +195,8 @@ function obtenerReservasUsuario(int $usuario_id): array
                 r.estado,
                 r.fecha_reserva,
                 r.fecha_expiracion,
+                r.nombre_cliente,
+                r.email_cliente,
                 a.fila,
                 a.numero           AS asiento_numero,
                 a.tipo             AS tipo_asiento,
@@ -202,17 +211,21 @@ function obtenerReservasUsuario(int $usuario_id): array
             INNER JOIN funciones f ON f.id = r.funcion_id
             INNER JOIN peliculas p ON p.id = f.pelicula_id
             INNER JOIN salas     s ON s.id = f.sala_id
-            WHERE  r.usuario_id = :usuario_id
+            WHERE  r.email_cliente = :email
             ORDER  BY r.fecha_reserva DESC
         ");
-        $stmt->execute([':usuario_id' => $usuario_id]);
+        $stmt->execute([':email' => strtolower(trim($email))]);
         return $stmt->fetchAll();
     } catch (PDOException $e) {
-        registrarError('funciones - obtenerReservasUsuario', $e->getMessage());
+        registrarError('funciones - obtenerReservasPorEmail', $e->getMessage());
         return [];
     }
 }
 
+/**
+ * Obtiene una reserva por su código único (ej: "CF-A3X9KW").
+ * Devuelve array de filas (una por asiento) o null si no existe.
+ */
 function obtenerReservaPorCodigo(string $codigo): ?array
 {
     $pdo = obtenerConexion();
@@ -224,7 +237,8 @@ function obtenerReservaPorCodigo(string $codigo): ?array
                 r.estado,
                 r.fecha_reserva,
                 r.fecha_expiracion,
-                r.usuario_id,
+                r.nombre_cliente,
+                r.email_cliente,
                 a.fila,
                 a.numero           AS asiento_numero,
                 a.tipo             AS tipo_asiento,
@@ -261,16 +275,12 @@ function obtenerReservaPorCodigo(string $codigo): ?array
 
 function flashMensaje(string $tipo, string $mensaje): void
 {
-    $_SESSION['flash'] = [
-        'tipo'    => $tipo,
-        'mensaje' => $mensaje,
-    ];
+    $_SESSION['flash'] = ['tipo' => $tipo, 'mensaje' => $mensaje];
 }
 
 function obtenerFlash(): ?array
 {
     if (!isset($_SESSION['flash'])) return null;
-
     $flash = $_SESSION['flash'];
     unset($_SESSION['flash']);
     return $flash;
@@ -280,9 +290,7 @@ function renderFlash(): string
 {
     $flash = obtenerFlash();
     if ($flash === null) return '';
-
     $clase   = 'alerta alerta-' . esc($flash['tipo']);
     $mensaje = esc($flash['mensaje']);
-
     return "<div class=\"{$clase}\" role=\"alert\">{$mensaje}</div>";
 }

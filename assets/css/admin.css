@@ -1,0 +1,64 @@
+/* ============================================================
+ *  CineFlow — Admin Panel Styles
+ * ============================================================
+ *  Archivo   : assets/css/admin.css
+ *  Propósito : Estilos para el panel de administración.
+ *              Extiende estilo.css con componentes propios del admin.
+ * ============================================================ */
+
+/* Admin layout: sidebar + main content */
+.admin-layout { display: flex; min-height: 100vh; }
+.admin-sidebar { width: 240px; background: var(--superficie); border-right: 1px solid var(--borde); padding: 1.5rem 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 100; }
+.admin-sidebar .logo { display: block; padding: 0 1.5rem 1.5rem; font-size: 1.4rem; font-weight: 700; color: var(--texto); text-decoration: none; border-bottom: 1px solid var(--borde); margin-bottom: 1rem; }
+.admin-sidebar .logo span { color: var(--primario); }
+.admin-nav a { display: flex; align-items: center; gap: .6rem; padding: .7rem 1.5rem; color: var(--texto-suave); text-decoration: none; font-size: .9rem; transition: all .2s; }
+.admin-nav a:hover, .admin-nav a.activo { background: var(--primario-suave); color: var(--texto); border-left: 3px solid var(--primario); padding-left: calc(1.5rem - 3px); }
+.admin-nav .nav-seccion { padding: 1rem 1.5rem .3rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--texto-muy-suave); }
+.admin-content { margin-left: 240px; flex: 1; padding: 2rem; min-height: 100vh; }
+.admin-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--borde); }
+.admin-topbar h1 { font-size: 1.5rem; color: var(--texto); margin: 0; }
+
+/* Stat cards */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.5rem; text-align: center; }
+.stat-card .stat-numero { font-size: 2.5rem; font-weight: 700; color: var(--primario); display: block; }
+.stat-card .stat-label { color: var(--texto-suave); font-size: .85rem; margin-top: .25rem; }
+
+/* Admin tables */
+.admin-tabla { width: 100%; border-collapse: collapse; background: var(--superficie); border-radius: var(--radio); overflow: hidden; }
+.admin-tabla th { background: var(--superficie-alt); color: var(--texto-suave); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--borde); }
+.admin-tabla td { padding: .75rem 1rem; border-bottom: 1px solid var(--borde-suave); color: var(--texto); font-size: .9rem; }
+.admin-tabla tr:last-child td { border-bottom: none; }
+.admin-tabla tr:hover td { background: var(--superficie-alt); }
+
+/* Action buttons */
+.btn-accion { padding: .35rem .75rem; border-radius: 4px; font-size: .8rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; transition: all .2s; }
+.btn-editar { background: var(--azul-oscuro); color: var(--azul); border: 1px solid var(--azul); }
+.btn-editar:hover { background: var(--azul); color: #fff; }
+.btn-eliminar { background: var(--rojo-oscuro); color: var(--rojo); border: 1px solid var(--rojo); }
+.btn-eliminar:hover { background: var(--rojo); color: #fff; }
+.btn-activar { background: var(--verde-oscuro); color: var(--verde); border: 1px solid var(--verde); }
+.btn-activar:hover { background: var(--verde); color: #000; }
+
+/* Admin forms */
+.admin-form { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: 2rem; max-width: 700px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.form-full { grid-column: 1 / -1; }
+
+/* Ticket validator */
+.ticket-resultado { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: 2rem; margin-top: 1.5rem; }
+.ticket-ok { border-color: var(--verde); }
+.ticket-error { border-color: var(--rojo); }
+.ticket-usada { border-color: var(--azul); }
+
+/* Reporte */
+.reporte-barra-wrap { background: var(--borde-suave); border-radius: 4px; height: 8px; margin-top: .3rem; }
+.reporte-barra { height: 8px; border-radius: 4px; background: var(--primario); transition: width .4s; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .admin-sidebar { width: 100%; height: auto; position: static; }
+  .admin-content { margin-left: 0; padding: 1rem; }
+  .admin-layout { flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
+}

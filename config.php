@@ -45,9 +45,6 @@ define('DB_CLAVE',   '');          // XAMPP local no usa contraseña por defecto
 /** Minutos que tiene el usuario para pagar desde que confirma la reserva */
 define('RESERVA_TIEMPO_LIMITE', 15);
 
-/** ID de usuario de prueba cuando no hay sesión activa (solo desarrollo) */
-define('USUARIO_PRUEBA_ID', 2);
-
 /** Ruta base del proyecto (sin trailing slash) */
 define('BASE_PATH', __DIR__);
 

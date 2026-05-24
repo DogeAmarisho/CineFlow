@@ -110,12 +110,28 @@ function actualizarResumen() {
         vacio.style.display     = 'block';
         totalWrap.style.display = 'none';
         btnConfirmar.disabled   = true;
+        const dc = document.getElementById('datos-cliente');
+        const sf = document.getElementById('sep-form');
+        if (dc) dc.style.display = 'none';
+        if (sf) sf.style.display = 'none';
         return;
     }
 
     vacio.style.display     = 'none';
     totalWrap.style.display = 'flex';
-    btnConfirmar.disabled   = false;
+
+    // Show client data form when seats are selected
+    const datosCliente = document.getElementById('datos-cliente');
+    const sepForm      = document.getElementById('sep-form');
+    if (datosCliente) datosCliente.style.display = 'block';
+    if (sepForm)      sepForm.style.display      = 'block';
+
+    // Enable confirm only if name+email are filled
+    const nombreEl = document.getElementById('nombre-cliente');
+    const emailEl  = document.getElementById('email-cliente');
+    const nombreOk = nombreEl && nombreEl.value.trim().length > 0;
+    const emailOk  = emailEl  && emailEl.value.trim().includes('@');
+    btnConfirmar.disabled = !(nombreOk && emailOk);
 
     let total = 0;
 
@@ -209,5 +225,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const btn       = document.getElementById('btn-confirmar');
         btn.disabled    = true;
         btn.textContent = 'Procesando...';
+    });
+
+    // Re-validate confirm button when client data changes
+    ['nombre-cliente', 'email-cliente'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', actualizarResumen);
     });
 });
