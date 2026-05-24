@@ -42,7 +42,7 @@ define('DB_USUARIO', 'root');
 define('DB_CLAVE',   '');          // XAMPP local no usa contraseña por defecto
 
 // ── Negocio ──────────────────────────────────────────────────
-/** Minutos que tiene el usuario para pagar desde que confirma la reserva */
+/** Ventana de validez de la reserva (minutos desde la confirmación) */
 define('RESERVA_TIEMPO_LIMITE', 15);
 
 /** Ruta base del proyecto (sin trailing slash) */
