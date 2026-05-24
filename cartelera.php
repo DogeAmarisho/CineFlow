@@ -411,16 +411,12 @@ sort($generos_disponibles);
 
 <!-- ══ CABECERA ══════════════════════════════════════════════ -->
 <header class="site-header">
-    <div class="logo">Cine<span>Flow</span></div>
-    <nav>
-        <?php if (isset($_SESSION['usuario_id'])): ?>
-            <span style="color:var(--texto-suave);font-size:.9rem;margin-right:14px;">
-                Hola, <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
-            </span>
-            <a href="logout.php" style="color:var(--primario);font-size:.9rem;">Cerrar sesión</a>
-        <?php else: ?>
-            <a href="login.php" style="color:var(--primario);font-size:.9rem;">Iniciar sesión</a>
-        <?php endif; ?>
+    <a href="index.php" class="logo" aria-label="CineFlow – inicio">
+        Cine<span>Flow</span>
+    </a>
+    <nav class="nav-principal" aria-label="Navegación principal">
+        <a href="index.php">🏠 Inicio</a>
+        <a href="cartelera.php" class="activo">🎬 Cartelera</a>
     </nav>
 </header>
 
