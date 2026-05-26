@@ -9,6 +9,9 @@
 # ============================================================
 
 
+# ── Página de inicio por defecto ─────────────────────────────
+DirectoryIndex index.php index.html
+
 # ── Ocultar listado de directorios ───────────────────────────
 Options -Indexes
 Options -MultiViews
