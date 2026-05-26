@@ -1,3 +1,14 @@
 .postman/
 postman_collection.json
 postman/globals
+
+# Claude Code (herramienta de desarrollo local)
+.claude/
+
+# Logs
+logs/
+*.log
+
+# Uploads (no subir imágenes al repo)
+uploads/peliculas/*
+!uploads/peliculas/.gitkeep
