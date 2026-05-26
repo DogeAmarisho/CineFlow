@@ -26,25 +26,25 @@
 
 /* ── 1. VARIABLES CSS (design tokens) ───────────────────────── */
 :root {
-    /* Paleta principal */
-    --primario:          #e50914;
-    --primario-oscuro:   #c0070f;
-    --primario-suave:    rgba(229, 9, 20, .15);
+    /* Paleta principal — inspirada en logo CineFlow */
+    --primario:          #4f8ef7;
+    --primario-oscuro:   #3a7ae0;
+    --primario-suave:    rgba(79, 142, 247, .15);
 
     /* Fondos */
-    --oscuro:            #141414;
-    --superficie:        #1f1f1f;
-    --superficie-alt:    #252525;
-    --overlay:           rgba(0, 0, 0, .75);
+    --oscuro:            #080f1a;
+    --superficie:        #0d1b2e;
+    --superficie-alt:    #112240;
+    --overlay:           rgba(0, 0, 0, .8);
 
     /* Bordes */
-    --borde:             #333;
-    --borde-suave:       #2a2a2a;
+    --borde:             #1e3a5f;
+    --borde-suave:       #132035;
 
     /* Texto */
-    --texto:             #e5e5e5;
-    --texto-suave:       #aaa;
-    --texto-muy-suave:   #666;
+    --texto:             #e2eaf8;
+    --texto-suave:       #7a9cc4;
+    --texto-muy-suave:   #3d5a7a;
 
     /* Colores semánticos */
     --verde:             #2ecc71;
@@ -57,13 +57,13 @@
     --rojo-oscuro:       #2e0d0d;
 
     /* Asientos (reserva.php) */
-    --libre:             #2a5c3f;
+    --libre:             #0a2a1a;
     --libre-borde:       #2ecc71;
-    --ocupado:           #3a1a1a;
-    --ocupado-borde:     #c0392b;
-    --seleccionado:      #1a3a5c;
-    --seleccionado-borde:#3498db;
-    --preferencial:      #3a2e0a;
+    --ocupado:           #1a0d1a;
+    --ocupado-borde:     #5a3a6a;
+    --seleccionado:      #0d2a4a;
+    --seleccionado-borde:#4f8ef7;
+    --preferencial:      #1a1a0a;
     --preferencial-borde:#f39c12;
 
     /* Tipografía */
@@ -183,7 +183,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── 4. HEADER / NAVEGACIÓN ─────────────────────────────────── */
 .site-header {
-    background-color: rgba(20, 20, 20, .95);
+    background-color: rgba(8, 15, 26, .97);
     border-bottom:    2px solid var(--primario);
     padding:          14px 24px;
     display:          flex;
