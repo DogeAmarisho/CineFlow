@@ -73,51 +73,113 @@ require_once __DIR__ . '/includes/header.php';
 <style>
     /* ── Hero ────────────────────────────────────────────────── */
     .hero {
-        position:         relative;
-        min-height:       520px;
-        display:          flex;
-        align-items:      center;
-        justify-content:  center;
-        text-align:       center;
-        padding:          80px 24px;
-        overflow:         hidden;
-        background:       linear-gradient(
-                              135deg,
-                              #1a0a0a 0%,
-                              #141414 40%,
-                              #0d1a0d 100%
-                          );
+        position:        relative;
+        height:          calc(100vh - 72px);
+        display:         grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items:     center;
+        padding:         40px 48px;
+        overflow:        hidden;
+        background:      linear-gradient(135deg, var(--oscuro) 0%, #0a1628 60%, #0d1b2e 100%);
+        gap:             32px;
     }
 
-    /* Decoración de fondo: círculos difuminados */
+    /* Destellos de fondo */
     .hero::before,
     .hero::after {
-        content:       '';
-        position:      absolute;
-        border-radius: 50%;
-        filter:        blur(80px);
-        opacity:       .25;
+        content:        '';
+        position:       absolute;
+        border-radius:  50%;
+        filter:         blur(100px);
+        opacity:        .18;
         pointer-events: none;
     }
     .hero::before {
-        width:      500px;
-        height:     500px;
+        width:      600px;
+        height:     600px;
         background: var(--primario);
-        top:        -150px;
+        top:        -200px;
         left:       -100px;
     }
     .hero::after {
-        width:      400px;
-        height:     400px;
-        background: #1a3a5c;
-        bottom:     -100px;
-        right:      -80px;
+        width:      500px;
+        height:     500px;
+        background: #7b52d9;
+        bottom:     -150px;
+        right:      -100px;
     }
 
+    /* Contenido central */
     .hero-contenido {
-        position:   relative;   /* encima del ::before/::after */
+        position:   relative;
         z-index:    1;
-        max-width:  700px;
+        text-align: center;
+        max-width:  600px;
+        justify-self: center;
+    }
+
+    /* Paneles laterales decorativos */
+    .hero-lateral {
+        position:       relative;
+        z-index:        1;
+        height:         100%;
+        display:        flex;
+        flex-direction: column;
+        justify-content: center;
+        gap:            16px;
+    }
+
+    .hero-lateral-der {
+        align-items: flex-start;
+    }
+
+    .hero-lateral-izq {
+        align-items: flex-end;
+    }
+
+    /* Tarjetas flotantes decorativas */
+    .hero-card {
+        background:    rgba(13, 27, 46, .85);
+        border:        1px solid var(--borde);
+        border-radius: var(--radio-lg);
+        padding:       14px 18px;
+        backdrop-filter: blur(10px);
+        display:       flex;
+        align-items:   center;
+        gap:           12px;
+        font-size:     .85rem;
+        color:         var(--texto-suave);
+        max-width:     220px;
+        box-shadow:    0 4px 20px rgba(0,0,0,.4);
+        animation:     flotar 4s ease-in-out infinite;
+    }
+
+    .hero-card:nth-child(2) { animation-delay: 1s; }
+    .hero-card:nth-child(3) { animation-delay: 2s; }
+
+    .hero-card .icono {
+        font-size:   1.5rem;
+        flex-shrink: 0;
+    }
+
+    .hero-card strong {
+        display:    block;
+        color:      var(--texto);
+        font-size:  .88rem;
+    }
+
+    @keyframes flotar {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-8px); }
+    }
+
+    @media (max-width: 900px) {
+        .hero {
+            grid-template-columns: 1fr;
+            justify-items: center;
+            padding: 40px 24px;
+        }
+        .hero-lateral { display: none; }
     }
 
     .hero-chip {
@@ -284,8 +346,34 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- ══ HERO ══════════════════════════════════════════════ -->
     <section class="hero" aria-label="Bienvenida">
-        <div class="hero-contenido">
 
+        <!-- Panel izquierdo -->
+        <div class="hero-lateral hero-lateral-izq">
+            <div class="hero-card">
+                <span class="icono">🎬</span>
+                <div>
+                    <strong>4 películas</strong>
+                    en cartelera hoy
+                </div>
+            </div>
+            <div class="hero-card">
+                <span class="icono">🏆</span>
+                <div>
+                    <strong>Sala VIP</strong>
+                    disponible
+                </div>
+            </div>
+            <div class="hero-card">
+                <span class="icono">⚡</span>
+                <div>
+                    <strong>Reserva en segundos</strong>
+                    sin registro
+                </div>
+            </div>
+        </div>
+
+        <!-- Centro -->
+        <div class="hero-contenido">
             <span class="hero-chip">🎬 Tu cine en línea</span>
 
             <h1>
@@ -306,8 +394,33 @@ require_once __DIR__ . '/includes/header.php';
                     Mis reservas
                 </a>
             </div>
-
         </div>
+
+        <!-- Panel derecho -->
+        <div class="hero-lateral hero-lateral-der">
+            <div class="hero-card">
+                <span class="icono">🎟️</span>
+                <div>
+                    <strong>Código único</strong>
+                    por cada reserva
+                </div>
+            </div>
+            <div class="hero-card">
+                <span class="icono">🪑</span>
+                <div>
+                    <strong>Hasta 6 asientos</strong>
+                    por reserva
+                </div>
+            </div>
+            <div class="hero-card">
+                <span class="icono">📍</span>
+                <div>
+                    <strong>4 salas</strong>
+                    incluyendo 4DX y VIP
+                </div>
+            </div>
+        </div>
+
     </section>
 
 
