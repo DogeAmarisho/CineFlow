@@ -70,6 +70,7 @@ $nav_activo    ??= '';
 
     <!-- Logo -->
     <a href="index.php" class="logo" aria-label="CineFlow – inicio">
+        <img src="assets/img/logo.png" alt="CineFlow" class="logo-img">
         Cine<span>Flow</span>
     </a>
 
