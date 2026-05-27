@@ -78,15 +78,15 @@ $nav_activo    ??= '';
     <nav class="nav-principal" aria-label="Navegación principal">
         <a href="index.php"
            class="<?= $nav_activo === 'inicio' ? 'activo' : '' ?>">
-            🏠 Inicio
+            Inicio
         </a>
         <a href="cartelera.php"
            class="<?= $nav_activo === 'cartelera' ? 'activo' : '' ?>">
-            🎬 Cartelera
+            Cartelera
         </a>
         <a href="consultar-reserva.php"
            class="<?= $nav_activo === 'consultar' ? 'activo' : '' ?>">
-            🔍 Mis reservas
+            Mis reservas
         </a>
     </nav>
 
