@@ -191,20 +191,6 @@ sort($generos_disponibles);
     <title>Cartelera – CineFlow</title>
     <link rel="stylesheet" href="assets/css/estilo.css">
     <style>
-        /* ── Variables y Reset básico ────────────────────────── */
-        :root {
-            --primario:    #e50914;
-            --oscuro:      #141414;
-            --superficie:  #1f1f1f;
-            --borde:       #333;
-            --texto:       #e5e5e5;
-            --texto-suave: #aaa;
-            --verde:       #2ecc71;
-            --azul:        #3498db;
-            --amarillo:    #f39c12;
-            --rojo:        #e74c3c;
-        }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
