@@ -324,22 +324,6 @@ require_once __DIR__ . '/includes/header.php';
         margin-top: 4px;
     }
 
-    /* ── Banner CTA inferior ─────────────────────────────────── */
-    .banner-cta {
-        padding:    70px 24px;
-        text-align: center;
-    }
-
-    .banner-cta h2 {
-        font-size:     2rem;
-        margin-bottom: 12px;
-    }
-
-    .banner-cta p {
-        color:         var(--texto-suave);
-        margin-bottom: 28px;
-        font-size:     1rem;
-    }
 </style>
 
 <main>
@@ -483,14 +467,6 @@ require_once __DIR__ . '/includes/header.php';
 
 
 
-    <!-- ══ BANNER CTA INFERIOR ═══════════════════════════════ -->
-    <section class="banner-cta" aria-label="Llamado a la acción">
-        <h2>¿Listo para tu próxima película?</h2>
-        <p>Reserva tu asiento antes de que se agoten.</p>
-        <a href="cartelera.php" class="btn btn-primario btn-lg">
-            Ver cartelera completa
-        </a>
-    </section>
 
 </main>
 
