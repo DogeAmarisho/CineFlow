@@ -210,10 +210,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo-img {
-    height:      42px;
-    width:       auto;
-    display:     block;
-    flex-shrink: 0;
+    height:        44px;
+    width:         44px;
+    display:       block;
+    flex-shrink:   0;
+    object-fit:    contain;
+    border-radius: 50%;
 }
 
 .logo span {

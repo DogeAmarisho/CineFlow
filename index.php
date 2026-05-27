@@ -262,50 +262,6 @@ require_once __DIR__ . '/includes/header.php';
         margin-top: 4px;
     }
 
-    /* ── Cómo funciona ───────────────────────────────────────── */
-    .como-funciona {
-        background: var(--superficie);
-        border-top: 1px solid var(--borde);
-        padding:    70px 0;
-    }
-
-    .pasos-grid {
-        display:               grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap:                   32px;
-        margin-top:            36px;
-    }
-
-    .paso {
-        text-align:  center;
-        padding:     24px;
-        border:      1px solid var(--borde);
-        border-radius: var(--radio-lg);
-        background:  var(--superficie-alt);
-        transition:  border-color var(--transicion);
-    }
-
-    .paso:hover {
-        border-color: var(--primario);
-    }
-
-    .paso-icono {
-        font-size:     2.6rem;
-        margin-bottom: 14px;
-        display:       block;
-    }
-
-    .paso h3 {
-        font-size:     1rem;
-        margin-bottom: 8px;
-    }
-
-    .paso p {
-        font-size:  .85rem;
-        color:      var(--texto-suave);
-        line-height: 1.6;
-    }
-
     /* ── Banner CTA inferior ─────────────────────────────────── */
     .banner-cta {
         padding:    70px 24px;
@@ -412,50 +368,6 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 
 
-    <!-- ══ CÓMO FUNCIONA ═════════════════════════════════════ -->
-    <section class="como-funciona" aria-labelledby="titulo-como-funciona">
-        <div class="contenedor">
-
-            <h2 id="titulo-como-funciona" style="text-align:center;font-size:1.6rem;">
-                ¿Cómo funciona?
-            </h2>
-            <p style="text-align:center;color:var(--texto-suave);margin-top:8px;">
-                Comprar tus entradas es muy fácil. Solo 3 pasos.
-            </p>
-
-            <div class="pasos-grid">
-
-                <div class="paso">
-                    <span class="paso-icono">🎬</span>
-                    <h3>1. Elige tu película</h3>
-                    <p>
-                        Explora la cartelera, filtra por género y
-                        selecciona el horario que más te acomode.
-                    </p>
-                </div>
-
-                <div class="paso">
-                    <span class="paso-icono">🪑</span>
-                    <h3>2. Selecciona tu asiento</h3>
-                    <p>
-                        Elige tu lugar favorito en el mapa interactivo.
-                        Puedes reservar hasta 6 asientos a la vez.
-                    </p>
-                </div>
-
-                <div class="paso">
-                    <span class="paso-icono">🎟</span>
-                    <h3>3. Confirma y disfruta</h3>
-                    <p>
-                        Recibirás un código único de reserva.
-                        Preséntalo en taquilla y listo.
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-    </section>
 
 
     <!-- ══ BANNER CTA INFERIOR ═══════════════════════════════ -->
