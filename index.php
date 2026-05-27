@@ -72,9 +72,11 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ══ ESTILOS ESPECÍFICOS DE ESTA PÁGINA ════════════════════ -->
 <style>
     /* ── Hero ────────────────────────────────────────────────── */
+    main { display: flex; flex-direction: column; }
+
     .hero {
         position:        relative;
-        height:          calc(100vh - 72px);
+        flex:            1;
         display:         grid;
         grid-template-columns: 1fr auto 1fr;
         align-items:     center;

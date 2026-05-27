@@ -284,12 +284,12 @@ h1, h2, h3, h4, h5, h6 {
 .site-footer {
     background:    var(--superficie);
     border-top:    1px solid var(--borde);
-    padding:       14px 24px;
+    padding:       6px 24px;
     margin-top:    auto;
     text-align:    center;
     color:         var(--texto-suave);
-    font-size:     .82rem;
-    line-height:   1.6;
+    font-size:     .78rem;
+    line-height:   1.4;
 }
 
 .site-footer a {
