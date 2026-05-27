@@ -24,14 +24,6 @@ $js_extra ??= '';
 <!-- ══ PIE DE PÁGINA ══════════════════════════════════════════ -->
 <footer class="site-footer">
 
-    <nav class="footer-links" aria-label="Navegación secundaria">
-        <a href="cartelera.php">Cartelera</a>
-        <a href="#">Cómo funciona</a>
-        <a href="#">Contacto</a>
-        <a href="#">Términos y condiciones</a>
-        <a href="#">Política de privacidad</a>
-    </nav>
-
     <p>© <?= date('Y') ?> CineFlow &middot; Todos los derechos reservados.</p>
     <p class="mt-8" style="font-size:.75rem;">
         Desarrollado por Cristóbal Yáñez y Álvaro Hormazabal
