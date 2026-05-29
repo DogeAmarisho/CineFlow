@@ -104,24 +104,13 @@ try {
 $precio_fmt  = '$' . number_format($funcion_obj->precio, 0, ',', '.');
 $form_nombre = htmlspecialchars($_POST['nombre_cliente'] ?? '', ENT_QUOTES, 'UTF-8');
 $form_email  = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF-8');
+
+$titulo_pagina = 'Selección de asientos – ' . esc($funcion['pelicula']);
+$nav_activo    = 'cartelera';
+require_once __DIR__ . '/includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selección de Asientos – <?= htmlspecialchars($funcion['pelicula']) ?> – CineFlow</title>
-    <link rel="stylesheet" href="assets/css/estilo.css">
-    <style>
-        :root {
-            --libre: #2a5c3f; --libre-borde: #2ecc71;
-            --ocupado: #3a1a1a; --ocupado-borde: #c0392b;
-            --seleccionado: #1a3a5c; --seleccionado-borde: #3498db;
-            --preferencial: #3a2e0a; --preferencial-borde: #f39c12;
-        }
-        .site-header { background: rgba(20,20,20,.95); border-bottom: 2px solid var(--primario); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
-        .site-header .logo { font-size: 1.4rem; font-weight: 700; color: var(--primario); text-decoration: none; }
-        .site-header .logo span { color: var(--texto); }
+
+<style>
         .bc { color: var(--texto-suave); font-size: .85rem; }
         .bc a { color: var(--primario); text-decoration: none; }
         .reserva-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; max-width: 1100px; margin: 24px auto; padding: 0 20px; }
@@ -168,16 +157,11 @@ $form_email  = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF
         .btn-confirmar:disabled { background: #555; cursor: not-allowed; }
         .btn-confirmar:hover:not(:disabled) { background: #c0070f; }
         .alerta-error { background: #2e0d0d; border: 1px solid #e74c3c; border-left: 4px solid #e74c3c; color: #e74c3c; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: .9rem; }
-    </style>
-</head>
-<body>
+</style>
 
-<header class="site-header">
-    <a href="index.php" class="logo">Cine<span>Flow</span></a>
-    <nav class="bc">
-        <a href="cartelera.php">Cartelera</a> › Selección de asientos
-    </nav>
-</header>
+<nav class="bc" style="padding: 10px 20px;">
+    <a href="cartelera.php">Cartelera</a> › Selección de asientos
+</nav>
 
 <div class="reserva-layout">
 
@@ -299,5 +283,5 @@ $form_email  = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF
 window.CFReserva = { precio: <?= (float)$funcion['precio'] ?>, maxAsientos: 6 };
 </script>
 <script src="assets/js/reserva.js"></script>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

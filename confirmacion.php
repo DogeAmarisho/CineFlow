@@ -60,7 +60,7 @@ if ($codigo === '' || !preg_match('/^CF-[A-Z0-9]{6}$/', $codigo)) {
 // ─────────────────────────────────────────────────────────────
 //  Consultar la reserva en la BD
 // ─────────────────────────────────────────────────────────────
-$filas_reserva = obtenerReservaPorCodigo($codigo);
+$filas_reserva = Reserva::ObtenerPorCodigo($codigo);
 
 if ($filas_reserva === null || empty($filas_reserva)) {
     flashMensaje('error', "No se encontró ninguna reserva con el código <strong>{$codigo}</strong>.");

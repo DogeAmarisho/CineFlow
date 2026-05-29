@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!filter_var($email_busqueda, FILTER_VALIDATE_EMAIL)) {
                 $error_msg = 'Ingresa un correo electrónico válido.';
             } else {
-                $reservas_email = obtenerReservasPorEmail($email_busqueda);
+                $reservas_email = Reserva::ObtenerPorEmail($email_busqueda);
             }
         }
     }

@@ -40,39 +40,12 @@ $generos_disponibles = array_unique(array_map(
 ));
 sort($generos_disponibles);
 
+$titulo_pagina = 'Cartelera';
+$nav_activo    = 'cartelera';
+require_once __DIR__ . '/includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartelera – CineFlow</title>
-    <link rel="stylesheet" href="assets/css/estilo.css">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background-color: var(--oscuro);
-            color: var(--texto);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            min-height: 100vh;
-        }
-
-        /* ── Header ─────────────────────────────────────────── */
-        .site-header {
-            background-color: rgba(20,20,20,.95);
-            border-bottom: 2px solid var(--primario);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo { font-size: 1.6rem; font-weight: 700; color: var(--primario); letter-spacing: 1px; }
-        .logo span { color: var(--texto); }
-
+<style>
         /* ── Filtros ─────────────────────────────────────────── */
         .filtros {
             display: flex;
@@ -239,30 +212,7 @@ sort($generos_disponibles);
             color: var(--texto-suave);
         }
         .sin-resultados h2 { font-size: 1.4rem; margin-bottom: 8px; }
-
-        /* ── Footer ─────────────────────────────────────────── */
-        .site-footer {
-            text-align: center;
-            padding: 24px;
-            color: var(--texto-suave);
-            font-size: .82rem;
-            border-top: 1px solid var(--borde);
-            margin-top: 40px;
-        }
-    </style>
-</head>
-<body>
-
-<!-- ══ CABECERA ══════════════════════════════════════════════ -->
-<header class="site-header">
-    <a href="index.php" class="logo" aria-label="CineFlow – inicio">
-        Cine<span>Flow</span>
-    </a>
-    <nav class="nav-principal" aria-label="Navegación principal">
-        <a href="index.php">🏠 Inicio</a>
-        <a href="cartelera.php" class="activo">🎬 Cartelera</a>
-    </nav>
-</header>
+</style>
 
 <!-- ══ FILTROS ═══════════════════════════════════════════════ -->
 <section class="filtros">
@@ -424,11 +374,6 @@ sort($generos_disponibles);
 
 </main><!-- /cartelera-grid -->
 
-<!-- ══ PIE DE PÁGINA ══════════════════════════════════════════ -->
-<footer class="site-footer">
-    <p>© <?= date('Y') ?> CineFlow · Todos los derechos reservados.</p>
-</footer>
-
 <!-- ══ JAVASCRIPT: Switcher de pestañas por fecha ════════════ -->
 <script>
 /**
@@ -480,5 +425,4 @@ function mostrarHorarios(peliId, fecha, tabEl) {
 }
 </script>
 
-</body>
-</html>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
