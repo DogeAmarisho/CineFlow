@@ -11,7 +11,7 @@
  *    $css_extra       (string) → Ruta de un CSS adicional de la vista.
  *                               Ej: 'assets/css/admin.css'
  *    $nav_activo      (string) → Slug del enlace activo en el nav.
- *                               Valores: 'cartelera' | 'mis-reservas' | ''
+ *                               Valores: 'inicio' | 'cartelera' | 'consultar' | ''
  *
  *  Depende de: config.php, includes/funciones.php
  *  Autores   : Cristóbal Yáñez y Álvaro Hormazabal

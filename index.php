@@ -337,7 +337,7 @@ require_once __DIR__ . '/includes/header.php';
                 <a href="cartelera.php" class="btn btn-primario btn-lg">
                     Ver cartelera
                 </a>
-                <a href="mis-reservas.php" class="btn btn-secundario btn-lg">
+                <a href="consultar-reserva.php" class="btn btn-secundario btn-lg">
                     Mis reservas
                 </a>
             </div>
