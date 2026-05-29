@@ -11,17 +11,9 @@
  */
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/funciones.php';
 
 $resultado_reserva = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $resultado_reserva = procesarReserva();
-    if ($resultado_reserva['exito']) {
-        $_SESSION['ultimo_codigo_reserva'] = $resultado_reserva['codigo'];
-        header('Location: confirmacion.php?codigo=' . urlencode($resultado_reserva['codigo']));
-        exit;
-    }
-}
 
 $funcion_id = filter_input(INPUT_GET, 'funcion', FILTER_VALIDATE_INT)
            ?? filter_input(INPUT_POST, 'funcion_id', FILTER_VALIDATE_INT);
@@ -31,194 +23,87 @@ if (!$funcion_id || $funcion_id <= 0) {
     exit;
 }
 
-function procesarReserva(): array
-{
-    $funcion_id     = filter_input(INPUT_POST, 'funcion_id', FILTER_VALIDATE_INT);
+// ── Procesamiento POST usando la clase Reserva ────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $asientos_raw   = $_POST['asientos'] ?? [];
     $nombre_cliente = trim($_POST['nombre_cliente'] ?? '');
     $email_cliente  = strtolower(trim($_POST['email_cliente'] ?? ''));
+    $asientos_ids   = array_filter(array_map('intval', (array)$asientos_raw), fn($id) => $id > 0);
 
-    if (!$funcion_id || $funcion_id <= 0)
-        return ['exito' => false, 'mensaje' => 'Función no válida.', 'codigo' => ''];
-    if ($nombre_cliente === '')
-        return ['exito' => false, 'mensaje' => 'El nombre es obligatorio.', 'codigo' => ''];
-    if (mb_strlen($nombre_cliente) > 150)
-        return ['exito' => false, 'mensaje' => 'El nombre no puede superar 150 caracteres.', 'codigo' => ''];
-    if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL))
-        return ['exito' => false, 'mensaje' => 'Ingresa un correo electrónico válido.', 'codigo' => ''];
-    if (empty($asientos_raw))
-        return ['exito' => false, 'mensaje' => 'Debes seleccionar al menos un asiento.', 'codigo' => ''];
-
-    $asientos_ids = array_filter(
-        array_map('intval', (array)$asientos_raw),
-        fn($id) => $id > 0
+    $reserva           = new Reserva([]);
+    $resultado_reserva = $reserva->CrearReserva(
+        $funcion_id,
+        array_values($asientos_ids),
+        $nombre_cliente,
+        $email_cliente
     );
 
-    if (count($asientos_ids) > 6)
-        return ['exito' => false, 'mensaje' => 'No puedes reservar más de 6 asientos a la vez.', 'codigo' => ''];
-    if (empty($asientos_ids))
-        return ['exito' => false, 'mensaje' => 'Los asientos seleccionados no son válidos.', 'codigo' => ''];
-
-    $pdo = obtenerConexion();
-
-    try {
-        $pdo->beginTransaction();
-
-        $stmtFuncion = $pdo->prepare("
-            SELECT id, sala_id, precio
-            FROM   funciones
-            WHERE  id        = :funcion_id
-              AND  activa    = 1
-              AND  fecha_hora > NOW()
-            FOR UPDATE
-        ");
-        $stmtFuncion->execute([':funcion_id' => $funcion_id]);
-        $funcion = $stmtFuncion->fetch();
-
-        if (!$funcion) {
-            $pdo->rollBack();
-            return ['exito' => false, 'mensaje' => 'La función no está disponible o ya finalizó.', 'codigo' => ''];
-        }
-
-        $placeholders = implode(',', array_map(
-            fn($i) => ":asiento_{$i}",
-            array_keys($asientos_ids)
-        ));
-
-        $sqlBloqueo = "
-            SELECT
-                a.id    AS asiento_id,
-                a.fila,
-                a.numero,
-                a.sala_id,
-                (SELECT COUNT(*) FROM reservas r
-                 WHERE r.asiento_id = a.id AND r.funcion_id = :funcion_id
-                   AND r.estado IN ('pendiente', 'confirmada')) AS ya_reservado
-            FROM asientos a
-            WHERE a.id IN ({$placeholders}) AND a.sala_id = :sala_id
-            FOR UPDATE
-        ";
-
-        $params = [':funcion_id' => $funcion_id, ':sala_id' => $funcion['sala_id']];
-        foreach (array_values($asientos_ids) as $i => $id) {
-            $params[":asiento_{$i}"] = $id;
-        }
-
-        $stmtBloqueo = $pdo->prepare($sqlBloqueo);
-        $stmtBloqueo->execute($params);
-        $asientos_bloqueados = $stmtBloqueo->fetchAll();
-
-        if (count($asientos_bloqueados) !== count($asientos_ids)) {
-            $pdo->rollBack();
-            return ['exito' => false, 'mensaje' => 'Uno o más asientos no pertenecen a esta función.', 'codigo' => ''];
-        }
-
-        $ocupados = [];
-        foreach ($asientos_bloqueados as $a) {
-            if ((int)$a['ya_reservado'] > 0) $ocupados[] = $a['fila'] . $a['numero'];
-        }
-
-        if (!empty($ocupados)) {
-            $pdo->rollBack();
-            return ['exito' => false, 'mensaje' => 'Los asientos ' . implode(', ', $ocupados) . ' ya están reservados. Elige otros.', 'codigo' => ''];
-        }
-
-        $codigo    = generarCodigoReserva();
-        $expiracion = date('Y-m-d H:i:s', strtotime('+' . RESERVA_TIEMPO_LIMITE . ' minutes'));
-
-        $stmtInsert = $pdo->prepare("
-            INSERT INTO reservas
-                (funcion_id, asiento_id, nombre_cliente, email_cliente,
-                 estado, fecha_expiracion, codigo_reserva)
-            VALUES
-                (:funcion_id, :asiento_id, :nombre_cliente, :email_cliente,
-                 'confirmada', :expiracion, :codigo)
-        ");
-
-        foreach ($asientos_bloqueados as $asiento) {
-            $stmtInsert->execute([
-                ':funcion_id'     => $funcion_id,
-                ':asiento_id'     => $asiento['asiento_id'],
-                ':nombre_cliente' => $nombre_cliente,
-                ':email_cliente'  => $email_cliente,
-                ':expiracion'     => $expiracion,
-                ':codigo'         => $codigo,
-            ]);
-        }
-
-        $pdo->commit();
-        return ['exito' => true, 'mensaje' => '¡Reserva confirmada!', 'codigo' => $codigo];
-
-    } catch (PDOException $e) {
-        if ($pdo->inTransaction()) $pdo->rollBack();
-        registrarError('reserva - procesarReserva', $e->getMessage());
-        if ($e->getCode() === '23000')
-            return ['exito' => false, 'mensaje' => 'Un asiento fue tomado en el último momento. Por favor elige otros.', 'codigo' => ''];
-        return ['exito' => false, 'mensaje' => 'Error interno. Por favor inténtalo de nuevo.', 'codigo' => ''];
+    if ($resultado_reserva['exito']) {
+        $_SESSION['ultimo_codigo_reserva'] = $resultado_reserva['codigo'];
+        header('Location: confirmacion.php?codigo=' . urlencode($resultado_reserva['codigo']));
+        exit;
     }
 }
 
-function generarCodigoReserva(): string
-{
-    $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    $codigo = 'CF-';
-    for ($i = 0; $i < 6; $i++) $codigo .= $chars[random_int(0, strlen($chars) - 1)];
-    return $codigo;
-}
+// ── Cargar datos de la función usando la clase Funcion ────────
+$funcion_obj = Funcion::ObtenerPorId($funcion_id);
+if (!$funcion_obj) { header('Location: cartelera.php'); exit; }
 
-function obtenerDatosFuncion(int $funcion_id): ?array
-{
-    $pdo = obtenerConexion();
-    try {
-        $stmt = $pdo->prepare("
-            SELECT f.id AS funcion_id, f.fecha_hora, f.precio, f.idioma,
-                   p.titulo AS pelicula, p.clasificacion, p.duracion_min, p.imagen,
-                   s.id AS sala_id, s.nombre AS sala, s.tipo AS tipo_sala
-            FROM funciones f
-            INNER JOIN peliculas p ON p.id = f.pelicula_id
-            INNER JOIN salas     s ON s.id = f.sala_id
-            WHERE f.id = :funcion_id AND f.activa = 1 AND f.fecha_hora > NOW()
-            LIMIT 1
-        ");
-        $stmt->execute([':funcion_id' => $funcion_id]);
-        return $stmt->fetch() ?: null;
-    } catch (PDOException $e) {
-        registrarError('reserva - obtenerDatosFuncion', $e->getMessage());
-        return null;
+// ── Cargar mapa de asientos usando la clase Asiento ──────────
+$mapa_asientos_obj = Asiento::ObtenerMapaPorFuncion($funcion_obj->idSala, $funcion_id);
+
+// Convertir objetos Asiento a arrays para compatibilidad con la vista
+$mapa_asientos = [];
+foreach ($mapa_asientos_obj as $fila => $asientos) {
+    foreach ($asientos as $a) {
+        $mapa_asientos[$fila][] = [
+            'asiento_id'   => $a->id,
+            'fila'         => $a->fila,
+            'numero'       => $a->numero,
+            'tipo_asiento' => $a->tipo,
+            'estado'       => $a->estado,
+        ];
     }
 }
 
-function obtenerMapaAsientos(int $funcion_id, int $sala_id): array
-{
-    $pdo = obtenerConexion();
-    try {
-        $stmt = $pdo->prepare("
-            SELECT a.id AS asiento_id, a.fila, a.numero, a.tipo AS tipo_asiento,
-                   COALESCE(
-                       (SELECT r.estado FROM reservas r
-                        WHERE r.asiento_id = a.id AND r.funcion_id = :funcion_id
-                          AND r.estado IN ('pendiente','confirmada') LIMIT 1),
-                       'libre') AS estado
-            FROM asientos a WHERE a.sala_id = :sala_id
-            ORDER BY a.fila ASC, a.numero ASC
-        ");
-        $stmt->execute([':funcion_id' => $funcion_id, ':sala_id' => $sala_id]);
-        $mapa = [];
-        foreach ($stmt->fetchAll() as $a) $mapa[$a['fila']][] = $a;
-        return $mapa;
-    } catch (PDOException $e) {
-        registrarError('reserva - obtenerMapaAsientos', $e->getMessage());
-        return [];
+// Mapear objeto Funcion a array para la vista HTML
+$funcion = [
+    'funcion_id'   => $funcion_obj->id,
+    'fecha_hora'   => $funcion_obj->horario,
+    'precio'       => $funcion_obj->precio,
+    'idioma'       => $funcion_obj->idioma,
+    'pelicula'     => $funcion_obj->peliculaTitulo ?? '',
+    'sala'         => $funcion_obj->salaNombre     ?? '',
+    'tipo_sala'    => '',
+    'sala_id'      => $funcion_obj->idSala,
+    'imagen'       => '',
+];
+
+// Obtener datos adicionales de la función (poster, tipo sala, clasificacion)
+$pdo_extra = obtenerConexion();
+try {
+    $s = $pdo_extra->prepare("
+        SELECT p.imagen, p.clasificacion, p.duracion_min, s.tipo AS tipo_sala
+        FROM funciones f
+        INNER JOIN peliculas p ON p.id = f.pelicula_id
+        INNER JOIN salas     s ON s.id = f.sala_id
+        WHERE f.id = :id LIMIT 1
+    ");
+    $s->execute([':id' => $funcion_id]);
+    $extra = $s->fetch();
+    if ($extra) {
+        $funcion['imagen']    = $extra['imagen']    ?? '';
+        $funcion['tipo_sala'] = $extra['tipo_sala'] ?? '';
+        $funcion['clasificacion'] = $extra['clasificacion'] ?? '';
+        $funcion['duracion_min']  = $extra['duracion_min']  ?? 0;
     }
+} catch (PDOException $e) {
+    registrarError('reserva - datos_extra', $e->getMessage());
 }
 
-$funcion       = obtenerDatosFuncion($funcion_id);
-if (!$funcion) { header('Location: cartelera.php'); exit; }
-
-$mapa_asientos = obtenerMapaAsientos($funcion_id, (int)$funcion['sala_id']);
-$precio_fmt    = '$' . number_format($funcion['precio'], 0, ',', '.');
-$form_nombre   = htmlspecialchars($_POST['nombre_cliente'] ?? '', ENT_QUOTES, 'UTF-8');
-$form_email    = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF-8');
+$precio_fmt  = '$' . number_format($funcion_obj->precio, 0, ',', '.');
+$form_nombre = htmlspecialchars($_POST['nombre_cliente'] ?? '', ENT_QUOTES, 'UTF-8');
+$form_email  = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="es">

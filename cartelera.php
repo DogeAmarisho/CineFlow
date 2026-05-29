@@ -13,173 +13,31 @@
  */
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/funciones.php';
 
 // ─────────────────────────────────────────────────────────────
-//  1. LÓGICA DE NEGOCIO (PHP puro, sin HTML)
-//     Separamos la consulta del HTML para mantener el código
-//     limpio y testeable.
+//  Obtener cartelera usando la clase Pelicula (OOP)
 // ─────────────────────────────────────────────────────────────
+$cartelera_completa = Pelicula::ObtenerCartelera();
 
-/**
- * Obtiene todas las películas activas que tienen al menos
- * una función programada desde ahora en adelante.
- *
- * @return array  Lista de películas con sus datos básicos.
- */
-function obtenerPeliculasEnCartelera(): array
-{
-    $pdo = obtenerConexion();
-
-    $sql = "
-        SELECT DISTINCT
-            p.id,
-            p.titulo,
-            p.genero,
-            p.sinopsis,
-            p.clasificacion,
-            p.duracion_min,
-            p.imagen,
-            p.fecha_estreno
-        FROM peliculas p
-        INNER JOIN funciones f ON f.pelicula_id = p.id
-        WHERE p.activa  = 1
-          AND f.activa  = 1
-          AND f.fecha_hora >= NOW()         -- Solo funciones futuras
-        ORDER BY p.titulo ASC
-    ";
-
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    } catch (PDOException $e) {
-        registrarError('cartelera - obtenerPeliculasEnCartelera', $e->getMessage());
-        return [];  // Devolvemos array vacío para que el frontend muestre "sin películas"
-    }
-}
-
-/**
- * Obtiene todas las funciones futuras de una película,
- * agrupadas por fecha para mostrarlas organizadas en el
- * selector de horarios.
- *
- * @param  int   $pelicula_id  ID de la película.
- * @return array Funciones ordenadas por fecha y hora.
- */
-function obtenerFuncionesPorPelicula(int $pelicula_id): array
-{
-    $pdo = obtenerConexion();
-
-    $sql = "
-        SELECT
-            f.id            AS funcion_id,
-            f.fecha_hora,
-            f.precio,
-            f.idioma,
-            s.nombre        AS sala,
-            s.tipo          AS tipo_sala,
-            -- Contar asientos libres para esta función
-            (
-                SELECT COUNT(*)
-                FROM asientos a
-                WHERE a.sala_id = f.sala_id
-                  AND a.id NOT IN (
-                      SELECT r.asiento_id
-                      FROM   reservas r
-                      WHERE  r.funcion_id = f.id
-                        AND  r.estado IN ('pendiente', 'confirmada')
-                  )
-            ) AS asientos_disponibles
-        FROM funciones f
-        INNER JOIN salas s ON s.id = f.sala_id
-        WHERE f.pelicula_id = :pelicula_id
-          AND f.activa      = 1
-          AND f.fecha_hora  >= NOW()
-        ORDER BY f.fecha_hora ASC
-    ";
-
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':pelicula_id' => $pelicula_id]);
-        $funciones = $stmt->fetchAll();
-
-        // Agrupar por fecha (YYYY-MM-DD) para mostrar pestañas por día
-        $agrupadas = [];
-        foreach ($funciones as $f) {
-            $fecha = date('Y-m-d', strtotime($f['fecha_hora']));
-            $agrupadas[$fecha][] = $f;
-        }
-        return $agrupadas;
-
-    } catch (PDOException $e) {
-        registrarError('cartelera - obtenerFuncionesPorPelicula', $e->getMessage());
-        return [];
-    }
-}
-
-/**
- * Convierte minutos a formato legible "Xh Ym".
- * Ej: 166 → "2h 46m"
- *
- * @param  int|null $minutos
- * @return string
- */
-function formatearDuracion(?int $minutos): string
-{
-    if ($minutos === null || $minutos <= 0) return 'N/D';
-    $horas = intdiv($minutos, 60);
-    $min   = $minutos % 60;
-    return $horas > 0 ? "{$horas}h {$min}m" : "{$min}m";
-}
-
-/**
- * Devuelve la clase CSS asociada a la clasificación etaria
- * para mostrar la etiqueta con el color correcto.
- *
- * @param  string $clasificacion
- * @return string Clase CSS
- */
-function claseBadgeClasificacion(string $clasificacion): string
-{
-    return match($clasificacion) {
-        'TE'    => 'badge-verde',
-        'TE+7'  => 'badge-azul',
-        'MA+14' => 'badge-amarillo',
-        'MA+18' => 'badge-rojo',
-        default => 'badge-gris',
-    };
-}
-
-// ─────────────────────────────────────────────────────────────
-//  2. EJECUCIÓN: obtenemos los datos antes de renderizar HTML
-// ─────────────────────────────────────────────────────────────
-$peliculas = obtenerPeliculasEnCartelera();
-
-// Generamos las funciones de cada película en un array indexado
-// para no repetir consultas dentro del HTML
-$funciones_por_pelicula = [];
-foreach ($peliculas as $pelicula) {
-    $funciones_por_pelicula[$pelicula['id']] =
-        obtenerFuncionesPorPelicula((int)$pelicula['id']);
-}
-
-// Filtro de género desde GET (opcional, sin afectar la seguridad)
+// Filtro de género desde GET
 $filtro_genero = isset($_GET['genero'])
     ? htmlspecialchars(trim($_GET['genero']), ENT_QUOTES, 'UTF-8')
     : '';
 
-// Si hay filtro, lo aplicamos sobre el array ya consultado
+// Aplicar filtro si corresponde
 if ($filtro_genero !== '') {
-    $peliculas = array_filter(
-        $peliculas,
-        fn($p) => stripos($p['genero'], $filtro_genero) !== false
+    $cartelera_completa = array_filter(
+        $cartelera_completa,
+        fn($item) => stripos($item['pelicula']->genero, $filtro_genero) !== false
     );
 }
 
 // Géneros únicos para el selector de filtros
-$generos_disponibles = array_unique(
-    array_column(obtenerPeliculasEnCartelera(), 'genero')
-);
+$generos_disponibles = array_unique(array_map(
+    fn($item) => $item['pelicula']->genero,
+    Pelicula::ObtenerCartelera()
+));
 sort($generos_disponibles);
 
 ?>
@@ -430,7 +288,7 @@ sort($generos_disponibles);
 <!-- ══ GRILLA DE PELÍCULAS ═══════════════════════════════════ -->
 <main class="cartelera-grid">
 
-    <?php if (empty($peliculas)): ?>
+    <?php if (empty($cartelera_completa)): ?>
         <!-- Sin resultados -->
         <div class="sin-resultados">
             <h2>🎬 No hay películas disponibles</h2>
@@ -443,29 +301,31 @@ sort($generos_disponibles);
 
     <?php else: ?>
 
-        <?php foreach ($peliculas as $pelicula):
-            $peli_id   = (int)$pelicula['id'];
-            $funciones = $funciones_por_pelicula[$peli_id] ?? [];
-            $clase_badge = claseBadgeClasificacion($pelicula['clasificacion']);
+        <?php foreach ($cartelera_completa as $item):
+            /** @var Pelicula $pelicula */
+            $pelicula    = $item['pelicula'];
+            $funciones   = $item['funciones_por_fecha'];
+            $peli_id     = $pelicula->id;
+            $clase_badge = claseBadgeClasificacion($pelicula->clasificacion);
         ?>
 
         <!-- ── Tarjeta ──────────────────────────────────────── -->
-        <article class="pelicula-card">
+        <article class="pelicula-card" id="pelicula-<?= $peli_id ?>">
 
             <!-- Poster -->
             <div class="poster-wrap">
                 <img
-                    src="<?= htmlspecialchars($pelicula['imagen'] ?? 'assets/img/sin-poster.jpg') ?>"
-                    alt="Poster de <?= htmlspecialchars($pelicula['titulo']) ?>"
+                    src="<?= esc($pelicula->poster ?: 'assets/img/sin-poster.jpg') ?>"
+                    alt="Poster de <?= esc($pelicula->titulo) ?>"
                     loading="lazy"
                     onerror="this.src='assets/img/sin-poster.jpg'">
 
                 <div class="badges">
                     <span class="badge <?= $clase_badge ?>">
-                        <?= htmlspecialchars($pelicula['clasificacion']) ?>
+                        <?= esc($pelicula->clasificacion) ?>
                     </span>
                     <span class="badge badge-gris">
-                        <?= htmlspecialchars($pelicula['genero']) ?>
+                        <?= esc($pelicula->genero) ?>
                     </span>
                 </div>
             </div>
@@ -473,19 +333,16 @@ sort($generos_disponibles);
             <!-- Datos -->
             <div class="card-body">
                 <h2 class="titulo-pelicula">
-                    <?= htmlspecialchars($pelicula['titulo']) ?>
+                    <?= esc($pelicula->titulo) ?>
                 </h2>
 
                 <div class="meta-pelicula">
-                    <span>⏱ <?= formatearDuracion($pelicula['duracion_min']) ?></span>
-                    <?php if ($pelicula['fecha_estreno']): ?>
-                        <span>📅 <?= date('d/m/Y', strtotime($pelicula['fecha_estreno'])) ?></span>
-                    <?php endif; ?>
+                    <span>⏱ <?= formatearDuracion($pelicula->duracion) ?></span>
                 </div>
 
-                <?php if (!empty($pelicula['sinopsis'])): ?>
+                <?php if ($pelicula->sinopsis !== ''): ?>
                     <p class="sinopsis">
-                        <?= htmlspecialchars($pelicula['sinopsis']) ?>
+                        <?= esc($pelicula->sinopsis) ?>
                     </p>
                 <?php endif; ?>
 
@@ -495,9 +352,8 @@ sort($generos_disponibles);
                     <p class="horarios-titulo">Próximas funciones</p>
 
                     <?php
-                    // Fechas disponibles para las pestañas
-                    $fechas = array_keys($funciones);
-                    $fecha_activa = $fechas[0]; // Por defecto la más próxima
+                    $fechas       = array_keys($funciones);
+                    $fecha_activa = $fechas[0];
                     ?>
 
                     <!-- Pestañas de fecha -->
@@ -522,27 +378,23 @@ sort($generos_disponibles);
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- Contenedor de horarios (se actualiza con JS) -->
+                    <!-- Contenedor de horarios -->
                     <div id="horarios-<?= $peli_id ?>" class="horarios-lista">
 
-                        <?php
-                        // Renderizamos TODOS los horarios como JSON en un atributo data
-                        // El JS los mostrará según la pestaña activa.
-                        // Solo renderizamos los del día inicial para no requerir JS si no está disponible.
-                        foreach ($funciones[$fecha_activa] as $f):
-                            $hora  = date('H:i', strtotime($f['fecha_hora']));
+                        <?php foreach ($funciones[$fecha_activa] as $f):
+                            $hora       = date('H:i', strtotime($f['fecha_hora']));
                             $precio_fmt = '$' . number_format($f['precio'], 0, ',', '.');
-                            $libre = (int)$f['asientos_disponibles'];
-                            $agotado = $libre === 0;
+                            $libre      = (int)$f['asientos_libres'];
+                            $agotado    = $libre === 0;
                         ?>
                             <a
-                                href="<?= $agotado ? '#' : 'reserva.php?funcion=' . (int)$f['funcion_id'] ?>"
+                                href="<?= $agotado ? '#' : 'reserva.php?funcion=' . (int)$f['id'] ?>"
                                 class="btn-horario <?= $agotado ? 'agotado' : '' ?>"
-                                title="<?= htmlspecialchars($f['sala']) ?> · <?= htmlspecialchars(ucfirst($f['idioma'])) ?>"
+                                title="<?= esc($f['sala_nombre']) ?> · <?= esc(ucfirst($f['idioma'])) ?>"
                                 <?= $agotado ? 'aria-disabled="true"' : '' ?>>
                                 <span class="hora"><?= $hora ?></span>
                                 <span class="precio"><?= $precio_fmt ?></span>
-                                <span class="sala"><?= htmlspecialchars($f['sala']) ?></span>
+                                <span class="sala"><?= esc($f['sala_nombre']) ?></span>
                                 <span class="disp" style="color: <?= $libre > 10 ? '#2ecc71' : ($libre > 0 ? '#f39c12' : '#e74c3c') ?>">
                                     <?= $agotado ? 'Agotado' : "{$libre} lugares" ?>
                                 </span>
@@ -551,7 +403,7 @@ sort($generos_disponibles);
 
                     </div><!-- /horarios -->
 
-                    <!-- Datos JSON para el switcher de pestañas -->
+                    <!-- Datos JSON para el switcher de pestañas JS -->
                     <script>
                     window.cineflowFunciones = window.cineflowFunciones || {};
                     window.cineflowFunciones[<?= $peli_id ?>] = <?= json_encode($funciones, JSON_HEX_TAG) ?>;
@@ -606,11 +458,11 @@ function mostrarHorarios(peliId, fecha, tabEl) {
 
     contenedor.innerHTML = funciones.map(f => {
         const hora  = f.fecha_hora.substring(11, 16);
-        const libre = parseInt(f.asientos_disponibles, 10);
+        const libre = parseInt(f.asientos_libres, 10);
         const agotado = libre === 0;
         const precio = '$' + parseInt(f.precio, 10).toLocaleString('es-CL');
         const colorDisp = libre > 10 ? '#2ecc71' : (libre > 0 ? '#f39c12' : '#e74c3c');
-        const href = agotado ? '#' : 'reserva.php?funcion=' + f.funcion_id;
+        const href = agotado ? '#' : 'reserva.php?funcion=' + f.id;
 
         return `
             <a href="${href}"
@@ -619,7 +471,7 @@ function mostrarHorarios(peliId, fecha, tabEl) {
                ${agotado ? 'aria-disabled="true"' : ''}>
                 <span class="hora">${hora}</span>
                 <span class="precio">${precio}</span>
-                <span class="sala">${f.sala}</span>
+                <span class="sala">${f.sala_nombre}</span>
                 <span class="disp" style="color:${colorDisp}">
                     ${agotado ? 'Agotado' : libre + ' lugares'}
                 </span>

@@ -24,6 +24,17 @@ define('CINEFLOW_CONFIG', true);
 
 
 // ═════════════════════════════════════════════════════════════
+//  0. AUTOLOADER DE CLASES (includes/clases/*.php)
+// ═════════════════════════════════════════════════════════════
+spl_autoload_register(function (string $clase): void {
+    $archivo = __DIR__ . '/includes/clases/' . $clase . '.php';
+    if (file_exists($archivo)) {
+        require_once $archivo;
+    }
+});
+
+
+// ═════════════════════════════════════════════════════════════
 //  1. CONSTANTES GLOBALES
 // ═════════════════════════════════════════════════════════════
 

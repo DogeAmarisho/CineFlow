@@ -18,48 +18,9 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/funciones.php';
 
 // ─────────────────────────────────────────────────────────────
-//  Obtener las películas destacadas para el hero
-//  (máximo 4, las que tengan funciones próximas)
+//  Películas destacadas usando la clase Pelicula (OOP)
 // ─────────────────────────────────────────────────────────────
-function obtenerPeliculasDestacadas(int $limite = 4): array
-{
-    $pdo = obtenerConexion();
-    try {
-        $stmt = $pdo->prepare("
-            SELECT DISTINCT
-                p.id,
-                p.titulo,
-                p.genero,
-                p.clasificacion,
-                p.duracion_min,
-                p.imagen,
-                p.sinopsis,
-                -- Precio mínimo de las funciones activas
-                (
-                    SELECT MIN(f2.precio)
-                    FROM   funciones f2
-                    WHERE  f2.pelicula_id = p.id
-                      AND  f2.activa      = 1
-                      AND  f2.fecha_hora  >= NOW()
-                ) AS precio_desde
-            FROM peliculas p
-            INNER JOIN funciones f ON f.pelicula_id = p.id
-            WHERE p.activa  = 1
-              AND f.activa  = 1
-              AND f.fecha_hora >= NOW()
-            ORDER BY p.fecha_estreno DESC
-            LIMIT :limite
-        ");
-        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    } catch (PDOException $e) {
-        registrarError('index - obtenerPeliculasDestacadas', $e->getMessage());
-        return [];
-    }
-}
-
-$peliculas_destacadas = obtenerPeliculasDestacadas(4);
+$peliculas_destacadas = Pelicula::ListarPeliculas(4);
 
 // ─────────────────────────────────────────────────────────────
 //  Renderizado
@@ -424,36 +385,36 @@ require_once __DIR__ . '/includes/header.php';
 
             <div class="peliculas-scroll">
                 <?php foreach ($peliculas_destacadas as $peli):
-                    $clase_badge = claseBadgeClasificacion($peli['clasificacion']);
+                    $clase_badge = claseBadgeClasificacion($peli->clasificacion);
                 ?>
-                    <a href="cartelera.php#pelicula-<?= (int)$peli['id'] ?>"
+                    <a href="cartelera.php#pelicula-<?= $peli->id ?>"
                        class="mini-card"
-                       title="<?= esc($peli['titulo']) ?>">
+                       title="<?= esc($peli->titulo) ?>">
 
                         <div class="mini-poster">
                             <img
-                                src="<?= esc($peli['imagen'] ?? 'assets/img/sin-poster.jpg') ?>"
-                                alt="Poster de <?= esc($peli['titulo']) ?>"
+                                src="<?= esc($peli->poster ?: 'assets/img/sin-poster.jpg') ?>"
+                                alt="Poster de <?= esc($peli->titulo) ?>"
                                 loading="lazy"
                                 onerror="this.src='assets/img/sin-poster.jpg'">
                             <div class="mini-badge-wrap">
                                 <span class="badge <?= $clase_badge ?>">
-                                    <?= esc($peli['clasificacion']) ?>
+                                    <?= esc($peli->clasificacion) ?>
                                 </span>
                             </div>
                         </div>
 
                         <div class="mini-info">
                             <span class="mini-titulo">
-                                <?= esc($peli['titulo']) ?>
+                                <?= esc($peli->titulo) ?>
                             </span>
                             <div class="mini-meta">
-                                <span><?= esc($peli['genero']) ?></span>
-                                <span><?= formatearDuracion($peli['duracion_min']) ?></span>
+                                <span><?= esc($peli->genero) ?></span>
+                                <span><?= formatearDuracion($peli->duracion) ?></span>
                             </div>
-                            <?php if ($peli['precio_desde']): ?>
+                            <?php if ($peli->precioDesde): ?>
                                 <span class="mini-precio">
-                                    Desde <?= formatearPrecio($peli['precio_desde']) ?>
+                                    Desde <?= formatearPrecio($peli->precioDesde) ?>
                                 </span>
                             <?php endif; ?>
                         </div>
