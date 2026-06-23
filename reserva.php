@@ -1,17 +1,10 @@
 ﻿<?php
 /**
- * ============================================================
- *  CineFlow - Plataforma de Gestión y Venta de Entradas
- * ============================================================
- *  Archivo   : reserva.php
- *  Versión   : 2.0 — Clientes invitados (nombre + email)
- *  Propósito : Selección de asientos y confirmación de reserva.
- *  Autores   : Cristóbal Yáñez y Álvaro Hormazabal
- * ============================================================
+ * Seleccion de asientos y creacion de la reserva.
+ * No se pide registro, solo nombre y correo (cliente invitado).
  */
 
 require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/includes/funciones.php';
 
 $resultado_reserva = null;
 
@@ -23,7 +16,7 @@ if (!$funcion_id || $funcion_id <= 0) {
     exit;
 }
 
-// ── Procesamiento POST usando la clase Reserva ────────────────
+// si llega el formulario, intenta crear la reserva
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $asientos_raw   = $_POST['asientos'] ?? [];
     $nombre_cliente = trim($_POST['nombre_cliente'] ?? '');
@@ -45,14 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── Cargar datos de la función usando la clase Funcion ────────
 $funcion_obj = Funcion::ObtenerPorId($funcion_id);
 if (!$funcion_obj) { header('Location: cartelera.php'); exit; }
 
-// ── Cargar mapa de asientos usando la clase Asiento ──────────
 $mapa_asientos_obj = Asiento::ObtenerMapaPorFuncion($funcion_obj->idSala, $funcion_id);
 
-// Convertir objetos Asiento a arrays para compatibilidad con la vista
+// la vista esta hecha pensando en arrays, asi que convertimos los objetos
 $mapa_asientos = [];
 foreach ($mapa_asientos_obj as $fila => $asientos) {
     foreach ($asientos as $a) {
@@ -66,7 +57,6 @@ foreach ($mapa_asientos_obj as $fila => $asientos) {
     }
 }
 
-// Mapear objeto Funcion a array para la vista HTML
 $funcion = [
     'funcion_id'   => $funcion_obj->id,
     'fecha_hora'   => $funcion_obj->horario,
@@ -79,7 +69,7 @@ $funcion = [
     'imagen'       => '',
 ];
 
-// Obtener datos adicionales de la función (poster, tipo sala, clasificacion)
+// faltan el poster y un par de datos mas que no trae Funcion::ObtenerPorId
 $pdo_extra = obtenerConexion();
 try {
     $s = $pdo_extra->prepare("
@@ -107,57 +97,9 @@ $form_email  = htmlspecialchars($_POST['email_cliente']  ?? '', ENT_QUOTES, 'UTF
 
 $titulo_pagina = 'Selección de asientos – ' . esc($funcion['pelicula']);
 $nav_activo    = 'cartelera';
-require_once __DIR__ . '/includes/header.php';
+render_header();
 ?>
 
-<style>
-        .bc { color: var(--texto-suave); font-size: .85rem; }
-        .bc a { color: var(--primario); text-decoration: none; }
-        .reserva-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; max-width: 1100px; margin: 24px auto; padding: 0 20px; }
-        @media (max-width: 768px) { .reserva-layout { grid-template-columns: 1fr; } }
-        .funcion-info { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; display: flex; gap: 16px; margin-bottom: 20px; }
-        .funcion-poster { width: 80px; height: 120px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #111; }
-        .funcion-datos h1 { font-size: 1.2rem; margin-bottom: 8px; }
-        .funcion-meta { font-size: .85rem; color: var(--texto-suave); line-height: 1.8; }
-        .pantalla-wrap { text-align: center; margin-bottom: 28px; }
-        .pantalla { display: inline-block; background: linear-gradient(to bottom,#fff,#e0e0e0); height: 6px; width: 70%; border-radius: 3px; box-shadow: 0 0 20px rgba(255,255,255,.3); }
-        .pantalla-label { font-size: .75rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 2px; margin-top: 6px; }
-        .mapa-scroll { overflow-x: auto; }
-        .mapa-asientos { display: flex; flex-direction: column; gap: 8px; min-width: 320px; }
-        .fila-asientos { display: flex; align-items: center; gap: 6px; }
-        .fila-label { width: 22px; text-align: center; font-size: .8rem; font-weight: 700; color: var(--texto-suave); flex-shrink: 0; }
-        .fila-asientos-grupo { display: flex; gap: 6px; flex-wrap: wrap; }
-        .asiento { width: 36px; height: 36px; border-radius: 6px 6px 3px 3px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; cursor: pointer; transition: transform .1s; user-select: none; }
-        .asiento:hover:not(.ocupado):not(.confirmado):not(.pendiente) { transform: scale(1.15); }
-        .asiento.libre { background: var(--libre); border-color: var(--libre-borde); color: #2ecc71; }
-        .asiento.libre.preferencial { background: var(--preferencial); border-color: var(--preferencial-borde); color: #f39c12; }
-        .asiento.ocupado, .asiento.confirmado { background: var(--ocupado); border-color: var(--ocupado-borde); color: #c0392b; cursor: not-allowed; opacity: .5; }
-        .asiento.pendiente { background: #2e2a0a; border-color: #e67e22; color: #e67e22; cursor: not-allowed; opacity: .7; }
-        .asiento.seleccionado { background: var(--seleccionado); border-color: var(--seleccionado-borde); color: #3498db; transform: scale(1.1); box-shadow: 0 0 8px rgba(52,152,219,.4); }
-        .leyenda { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; font-size: .8rem; }
-        .leyenda-item { display: flex; align-items: center; gap: 6px; }
-        .leyenda-box { width: 18px; height: 18px; border-radius: 4px; border: 2px solid; }
-        .panel-reserva { position: sticky; top: 20px; align-self: start; }
-        .panel-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; }
-        .panel-card h2 { font-size: 1rem; margin-bottom: 16px; }
-        .resumen-vacio { color: var(--texto-suave); font-size: .85rem; text-align: center; padding: 12px 0; }
-        #lista-seleccionados { list-style: none; padding: 0; margin: 0 0 12px; }
-        #lista-seleccionados li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--borde); font-size: .88rem; }
-        #lista-seleccionados li:last-child { border-bottom: none; }
-        .quitar-asiento { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; }
-        .total-precio { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; margin: 12px 0; padding-top: 8px; border-top: 1px solid var(--borde); }
-        #valor-total { color: var(--primario); }
-        .campo-cliente { margin-bottom: 12px; }
-        .campo-cliente label { display: block; font-size: .82rem; color: var(--texto-suave); margin-bottom: 5px; }
-        .campo-cliente input { width: 100%; padding: 9px 12px; background: #2a2a2a; border: 1px solid var(--borde); border-radius: 6px; color: var(--texto); font-size: .88rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
-        .campo-cliente input:focus { border-color: var(--primario); }
-        .campo-cliente .hint { font-size: .72rem; color: var(--texto-suave); margin-top: 3px; }
-        hr.sep { border: none; border-top: 1px solid var(--borde); margin: 14px 0; }
-        .btn-confirmar { width: 100%; padding: 13px; background: var(--primario); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; }
-        .btn-confirmar:disabled { background: #555; cursor: not-allowed; }
-        .btn-confirmar:hover:not(:disabled) { background: #c0070f; }
-        .alerta-error { background: #2e0d0d; border: 1px solid #e74c3c; border-left: 4px solid #e74c3c; color: #e74c3c; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: .9rem; }
-</style>
 
 <nav class="bc" style="padding: 10px 20px;">
     <a href="cartelera.php">Cartelera</a> › Selección de asientos
@@ -168,9 +110,9 @@ require_once __DIR__ . '/includes/header.php';
     <section>
         <div class="funcion-info">
             <img class="funcion-poster"
-                 src="<?= htmlspecialchars($funcion['imagen'] ?? 'assets/img/sin-poster.jpg') ?>"
+                 src="<?= htmlspecialchars($funcion['imagen'] ?? 'assets/img/sin-poster.svg') ?>"
                  alt="Poster"
-                 onerror="this.src='assets/img/sin-poster.jpg'">
+                 onerror="this.src='assets/img/sin-poster.svg'">
             <div class="funcion-datos">
                 <h1><?= htmlspecialchars($funcion['pelicula']) ?></h1>
                 <div class="funcion-meta">
@@ -202,7 +144,6 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="fila-asientos-grupo">
                                 <?php foreach ($asientos as $asiento):
                                     $clases = ['asiento', $asiento['estado']];
-                                    if ($asiento['tipo_asiento'] === 'preferencial') $clases[] = 'preferencial';
                                     $puede = $asiento['estado'] === 'libre';
                                     $label = "Asiento {$asiento['fila']}{$asiento['numero']}" . ($puede ? '' : ' - ocupado');
                                 ?>
@@ -226,7 +167,6 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="leyenda">
             <div class="leyenda-item"><div class="leyenda-box" style="background:var(--libre);border-color:var(--libre-borde)"></div><span>Libre</span></div>
-            <div class="leyenda-item"><div class="leyenda-box" style="background:var(--preferencial);border-color:var(--preferencial-borde)"></div><span>Preferencial</span></div>
             <div class="leyenda-item"><div class="leyenda-box" style="background:var(--ocupado);border-color:var(--ocupado-borde)"></div><span>Ocupado</span></div>
             <div class="leyenda-item"><div class="leyenda-box" style="background:var(--seleccionado);border-color:var(--seleccionado-borde)"></div><span>Tu selección</span></div>
         </div>
@@ -284,4 +224,4 @@ window.CFReserva = { precio: <?= (float)$funcion['precio'] ?>, maxAsientos: 6 };
 </script>
 <script src="assets/js/reserva.js"></script>
 
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php render_footer(); ?>
