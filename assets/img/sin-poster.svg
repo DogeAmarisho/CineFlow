@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 450">
+    <rect width="300" height="450" fill="#0d1b2e"/>
+    <rect x="1" y="1" width="298" height="448" fill="none" stroke="#1e3a5f" stroke-width="2"/>
+    <text x="150" y="210" font-size="72" text-anchor="middle" dominant-baseline="middle">🎬</text>
+    <text x="150" y="270" font-size="16" font-family="Arial, sans-serif" fill="#7a9cc4" text-anchor="middle">Sin póster</text>
+</svg>
