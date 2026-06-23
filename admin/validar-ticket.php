@@ -1,8 +1,11 @@
 <?php
 /**
- * Busca una reserva por su codigo y permite marcarla como usada (RF-10).
+ * CineFlow - Admin Validar Ticket (RF-10)
+ * Archivo: admin/validar-ticket.php
+ * Permite al admin buscar una reserva por código y marcarla como 'utilizada'.
  */
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
 if (!esAdmin()) { header('Location: login.php'); exit; }
 
@@ -12,7 +15,7 @@ $resultado = null;
 $accion_ok = false;
 $error_msg = '';
 
-// si llega el boton de validar, marca todos los asientos de esa reserva como usados
+// Handle validation action (mark all seats of the reservation as 'utilizada')
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validar_codigo'])) {
     verificarTokenCsrf($_POST['csrf_token'] ?? '');
     $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
@@ -20,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validar_codigo'])) {
     try {
         $pdo->beginTransaction();
 
-        // primero revisamos en que estado esta antes de tocar nada
+        // Check current state of any row for this codigo_reserva
         $stmt = $pdo->prepare("SELECT estado FROM reservas WHERE codigo_reserva=:codigo LIMIT 1 FOR UPDATE");
         $stmt->execute([':codigo' => $codigo]);
         $reserva = $stmt->fetch();
@@ -35,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validar_codigo'])) {
             $pdo->rollBack();
             $error_msg = '❌ Solo se pueden validar reservas confirmadas. Estado actual: ' . etiquetaEstadoReserva($reserva['estado']);
         } else {
+            // Mark ALL seats of this reservation as utilizada
             $pdo->prepare("UPDATE reservas SET estado='utilizada' WHERE codigo_reserva=:codigo AND estado='confirmada'")
                 ->execute([':codigo' => $codigo]);
             $pdo->commit();
@@ -47,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validar_codigo'])) {
     }
 }
 
-// buscamos de nuevo para mostrar el estado actualizado (por si se acaba de validar)
+// Search by code (after possible update, re-read fresh state)
 if ($codigo !== '') {
     try {
         $stmt = $pdo->prepare("
@@ -78,7 +82,7 @@ if ($codigo !== '') {
 
 $titulo_pagina    = 'Validar Ticket';
 $admin_nav_activo = 'validar';
-render_admin_header();
+require_once __DIR__ . '/includes/header.php';
 
 $primer = !empty($resultado) ? $resultado[0] : null;
 $estado_actual = $primer['estado'] ?? '';
@@ -88,7 +92,7 @@ $estado_actual = $primer['estado'] ?? '';
     <h1>✅ Validar Ticket</h1>
 </div>
 
-<!-- formulario de busqueda -->
+<!-- Search form -->
 <form method="GET" action="validar-ticket.php" style="margin-bottom:1.5rem;">
     <div style="display:flex;gap:.75rem;max-width:500px;">
         <input type="text" name="codigo" placeholder="Ej: CF-A3X9KW"
@@ -118,7 +122,7 @@ $funcion_pasada = strtotime($primer['fecha_hora']) < time();
 ?>
 <div class="ticket-resultado <?= $clase_ticket ?>">
 
-    <!-- datos de la pelicula y la funcion -->
+    <!-- Header info -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">
         <div>
             <div style="font-size:1.4rem;font-weight:700;margin-bottom:.25rem;"><?= esc($primer['pelicula']) ?></div>
@@ -134,7 +138,7 @@ $funcion_pasada = strtotime($primer['fecha_hora']) < time();
         </div>
     </div>
 
-    <!-- datos del cliente -->
+    <!-- Cliente -->
     <div style="background:var(--superficie-alt);border-radius:var(--radio);padding:1rem;margin-bottom:1rem;">
         <div style="font-weight:600;margin-bottom:.5rem;">👤 Datos del cliente</div>
         <div>Nombre: <strong><?= esc($primer['nombre_cliente']) ?></strong></div>
@@ -144,25 +148,28 @@ $funcion_pasada = strtotime($primer['fecha_hora']) < time();
         </div>
     </div>
 
-    <!-- asientos -->
+    <!-- Asientos -->
     <div style="margin-bottom:1.5rem;">
         <div style="font-weight:600;margin-bottom:.5rem;">🎟️ Asientos (<?= count($resultado) ?>)</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
             <?php foreach ($resultado as $r): ?>
                 <span class="badge badge-azul" style="font-family:var(--fuente-mono);font-size:.9rem;padding:.35rem .75rem;">
                     <?= esc($r['fila']) ?><?= $r['asiento_numero'] ?>
+                    <?php if ($r['tipo_asiento'] !== 'normal'): ?>
+                        <small>(<?= esc($r['tipo_asiento']) ?>)</small>
+                    <?php endif; ?>
                 </span>
             <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- total -->
+    <!-- Total -->
     <div style="font-size:1.1rem;margin-bottom:1.5rem;">
         💰 Total: <strong><?= formatearPrecio($primer['precio'] * count($resultado)) ?></strong>
         <span style="color:var(--texto-suave);font-size:.85rem;">(<?= count($resultado) ?> × <?= formatearPrecio($primer['precio']) ?>)</span>
     </div>
 
-    <!-- boton de accion -->
+    <!-- Action button -->
     <?php if ($estado_actual === 'confirmada'): ?>
         <?php if ($funcion_pasada): ?>
             <div class="alerta alerta-aviso">⚠️ La función ya pasó.</div>
@@ -184,4 +191,4 @@ $funcion_pasada = strtotime($primer['fecha_hora']) < time();
 </div>
 <?php endif; ?>
 
-<?php render_admin_footer(); ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>

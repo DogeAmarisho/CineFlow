@@ -101,7 +101,7 @@ CREATE TABLE asientos (
     sala_id        INT UNSIGNED   NOT NULL,
     fila           CHAR(2)        NOT NULL,
     numero         TINYINT UNSIGNED NOT NULL,
-    tipo           ENUM('normal','discapacidad') NOT NULL DEFAULT 'normal',
+    tipo           ENUM('normal','preferencial','discapacidad') NOT NULL DEFAULT 'normal',
 
     PRIMARY KEY (id),
     UNIQUE KEY uq_asiento_sala (sala_id, fila, numero),
@@ -228,7 +228,8 @@ INSERT INTO salas (nombre, capacidad, tipo) VALUES
 
 -- Asientos Sala 1 (A-H × 10 = 80 asientos)
 INSERT INTO asientos (sala_id, fila, numero, tipo)
-SELECT 1, fila, numero, 'normal'
+SELECT 1, fila, numero,
+       CASE WHEN fila = 'A' THEN 'preferencial' ELSE 'normal' END
 FROM (
     SELECT 'A' AS fila UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D'
     UNION SELECT 'E' UNION SELECT 'F' UNION SELECT 'G' UNION SELECT 'H'
@@ -240,7 +241,8 @@ CROSS JOIN (
 
 -- Asientos Sala 2 (misma distribución)
 INSERT INTO asientos (sala_id, fila, numero, tipo)
-SELECT 2, fila, numero, 'normal'
+SELECT 2, fila, numero,
+       CASE WHEN fila = 'A' THEN 'preferencial' ELSE 'normal' END
 FROM (
     SELECT 'A' AS fila UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D'
     UNION SELECT 'E' UNION SELECT 'F' UNION SELECT 'G' UNION SELECT 'H'
@@ -250,9 +252,9 @@ CROSS JOIN (
     UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10
 ) numeros;
 
--- Asientos Sala VIP (A-E × 8 = 40 asientos)
+-- Asientos Sala VIP (A-E × 8 = 40 asientos, todos preferenciales)
 INSERT INTO asientos (sala_id, fila, numero, tipo)
-SELECT 3, fila, numero, 'normal'
+SELECT 3, fila, numero, 'preferencial'
 FROM (
     SELECT 'A' AS fila UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D' UNION SELECT 'E'
 ) filas

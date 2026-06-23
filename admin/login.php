@@ -1,26 +1,14 @@
 <?php
 /**
- * Login del admin. El logout esta aca mismo (con ?salir=1).
+ * CineFlow - Admin Login
+ * Archivo: admin/login.php
  */
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/funciones.php';
 
-if (isset($_GET['salir'])) {
-    $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params['path'], $params['domain'],
-            $params['secure'], $params['httponly']
-        );
-    }
-    session_destroy();
-    header('Location: login.php');
-    exit;
-}
-
-// si ya esta logueado no tiene sentido mostrarle el login otra vez
+// Already logged in → go to dashboard
 if (esAdmin()) {
-    header('Location: peliculas.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -48,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario = $stmt->fetch();
 
             if ($usuario && password_verify($password, $usuario['password_hash'])) {
-                session_regenerate_id(true); // cambia el id de sesion al loguearse
+                // Regenerar ID de sesión (previene session fixation)
+                session_regenerate_id(true);
 
                 $_SESSION['usuario_id'] = (int)$usuario['id'];
                 $_SESSION['nombre']     = $usuario['nombre'];
@@ -56,11 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['rol']        = $usuario['rol'];
 
                 flashMensaje('exito', '¡Bienvenido, ' . $usuario['nombre'] . '!');
-                header('Location: peliculas.php');
+                header('Location: index.php');
                 exit;
             } else {
                 $error = 'Email o contraseña incorrectos.';
-                sleep(1); // para no hacer tan facil probar contraseñas a lo loco
+                // Small delay to mitigate brute force
+                sleep(1);
             }
         } catch (PDOException $e) {
             registrarError('admin-login', $e->getMessage());

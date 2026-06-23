@@ -1,29 +1,53 @@
 /**
- * Selector de asientos de reserva.php. No recarga la pagina al
- * seleccionar/quitar asientos, todo se actualiza con JS.
+ * ============================================================
+ *  CineFlow — reserva.js
+ * ============================================================
+ *  Propósito : Lógica del selector interactivo de asientos.
  *
- * reserva.php define antes de cargar este archivo:
- *   window.CFReserva = { precio, maxAsientos }
+ *  DEPENDENCIA:
+ *    reserva.php inyecta antes de cargar este archivo:
+ *      window.CFReserva = { precio: <float>, maxAsientos: 6 }
+ *
+ *  FUNCIONES GLOBALES (llamadas desde atributos onclick en PHP):
+ *    toggleAsiento(el)   → alterna selección de un asiento
+ *    quitarAsiento(id)   → quita un asiento desde el resumen
+ *
+ *  Autores : Cristóbal Yáñez y Álvaro Hormazabal
+ * ============================================================
  */
 
+// ─────────────────────────────────────────────────────────────
+//  Configuración (inyectada por reserva.php vía window.CFReserva)
+// ─────────────────────────────────────────────────────────────
 const PRECIO_UNITARIO = window.CFReserva?.precio      ?? 0;
 const MAX_ASIENTOS    = window.CFReserva?.maxAsientos ?? 6;
 
-// guarda los asientos que el usuario va seleccionando: id -> {fila, numero, precio}
+/** Map<asiento_id, {fila, numero, precio}> — estado del selector */
 const seleccionados = new Map();
 
 
-// se llama al hacer click en un asiento del mapa
+// ─────────────────────────────────────────────────────────────
+//  FUNCIÓN: toggleAsiento
+//  Alterna la selección de un asiento en el mapa visual.
+//  Actualiza colores, el resumen lateral y los inputs ocultos.
+//
+//  @param {HTMLElement} el  El div.asiento clicado
+// ─────────────────────────────────────────────────────────────
 function toggleAsiento(el) {
     const id     = parseInt(el.dataset.id,     10);
     const fila   = el.dataset.fila;
     const numero = el.dataset.numero;
 
     if (seleccionados.has(id)) {
+        // ── Deseleccionar ──────────────────────────────────
         seleccionados.delete(id);
         el.classList.remove('seleccionado');
         el.classList.add('libre');
+        if (el.dataset.tipo === 'preferencial') {
+            el.classList.add('preferencial');
+        }
     } else {
+        // ── Seleccionar ────────────────────────────────────
         if (seleccionados.size >= MAX_ASIENTOS) {
             mostrarMensajeTemporal(
                 `Solo puedes seleccionar hasta ${MAX_ASIENTOS} asientos a la vez.`
@@ -32,14 +56,20 @@ function toggleAsiento(el) {
         }
         seleccionados.set(id, { fila, numero, precio: PRECIO_UNITARIO });
         el.classList.add('seleccionado');
-        el.classList.remove('libre');
+        el.classList.remove('libre', 'preferencial');
     }
 
     actualizarResumen();
 }
 
 
-// se llama al apretar la "x" de un asiento en el panel de resumen
+// ─────────────────────────────────────────────────────────────
+//  FUNCIÓN: quitarAsiento
+//  Elimina un asiento de la selección desde el panel lateral
+//  y lo desmarca en el mapa.
+//
+//  @param {number} id  ID del asiento a quitar
+// ─────────────────────────────────────────────────────────────
 function quitarAsiento(id) {
     seleccionados.delete(id);
 
@@ -47,13 +77,23 @@ function quitarAsiento(id) {
     if (el) {
         el.classList.remove('seleccionado');
         el.classList.add('libre');
+        if (el.dataset.tipo === 'preferencial') {
+            el.classList.add('preferencial');
+        }
     }
 
     actualizarResumen();
 }
 
 
-// redibuja el panel de la derecha cada vez que cambia la seleccion
+// ─────────────────────────────────────────────────────────────
+//  FUNCIÓN: actualizarResumen  (privada, llamada internamente)
+//  Sincroniza el panel derecho con el estado de `seleccionados`:
+//    · Lista de asientos elegidos con botón "Quitar"
+//    · Total a pagar
+//    · Inputs hidden del formulario
+//    · Estado del botón Confirmar
+// ─────────────────────────────────────────────────────────────
 function actualizarResumen() {
     const lista        = document.getElementById('lista-seleccionados');
     const vacio        = document.getElementById('resumen-vacio');
@@ -62,6 +102,7 @@ function actualizarResumen() {
     const btnConfirmar = document.getElementById('btn-confirmar');
     const inputsDiv    = document.getElementById('inputs-asientos');
 
+    // Limpiar
     lista.innerHTML     = '';
     inputsDiv.innerHTML = '';
 
@@ -79,13 +120,13 @@ function actualizarResumen() {
     vacio.style.display     = 'none';
     totalWrap.style.display = 'flex';
 
-    // recien aca aparece el formulario de nombre/correo
+    // Show client data form when seats are selected
     const datosCliente = document.getElementById('datos-cliente');
     const sepForm      = document.getElementById('sep-form');
     if (datosCliente) datosCliente.style.display = 'block';
     if (sepForm)      sepForm.style.display      = 'block';
 
-    // el boton de confirmar solo se habilita si ya escribio nombre y correo
+    // Enable confirm only if name+email are filled
     const nombreEl = document.getElementById('nombre-cliente');
     const emailEl  = document.getElementById('email-cliente');
     const nombreOk = nombreEl && nombreEl.value.trim().length > 0;
@@ -97,6 +138,7 @@ function actualizarResumen() {
     seleccionados.forEach(({ fila, numero, precio }, id) => {
         total += precio;
 
+        // ── Fila en la lista del resumen ───────────────────
         const li = document.createElement('li');
         li.innerHTML = `
             <span>Asiento <strong>${fila}${numero}</strong></span>
@@ -113,7 +155,7 @@ function actualizarResumen() {
             </span>`;
         lista.appendChild(li);
 
-        // un input oculto por cada asiento, asi llegan todos al hacer submit
+        // ── Input hidden para el formulario ────────────────
         const input = document.createElement('input');
         input.type  = 'hidden';
         input.name  = 'asientos[]';
@@ -125,7 +167,12 @@ function actualizarResumen() {
 }
 
 
-// pequeño aviso flotante que aparece y se borra solo
+// ─────────────────────────────────────────────────────────────
+//  FUNCIÓN: mostrarMensajeTemporal  (privada)
+//  Muestra un toast flotante que desaparece tras 2.5 s.
+//
+//  @param {string} texto
+// ─────────────────────────────────────────────────────────────
 function mostrarMensajeTemporal(texto) {
     let el = document.getElementById('msg-temporal');
 
@@ -159,6 +206,10 @@ function mostrarMensajeTemporal(texto) {
 }
 
 
+// ─────────────────────────────────────────────────────────────
+//  EVENTO: submit del formulario de reserva
+//  Previene el doble envío y valida que haya al menos un asiento.
+// ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('form-reserva');
     if (!form) return;
@@ -170,13 +221,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // asi evitamos que manden el formulario dos veces con doble click
+        // Deshabilitar botón para evitar doble clic
         const btn       = document.getElementById('btn-confirmar');
         btn.disabled    = true;
         btn.textContent = 'Procesando...';
     });
 
-    // si escribe o borra el nombre/correo, se vuelve a revisar el boton de confirmar
+    // Re-validate confirm button when client data changes
     ['nombre-cliente', 'email-cliente'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', actualizarResumen);

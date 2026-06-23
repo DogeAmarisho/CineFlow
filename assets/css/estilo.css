@@ -1,7 +1,30 @@
-/* estilos base, compartidos por todo el sitio (publico y admin) */
+/* ============================================================
+ *  CineFlow — Hoja de estilos global
+ * ============================================================
+ *  Archivo   : assets/css/estilo.css
+ *  Propósito : Estilos base compartidos por todas las vistas.
+ *              Cada página puede añadir un bloque <style>
+ *              propio solo para lo que sea exclusivo de ella.
+ *
+ *  ORGANIZACIÓN:
+ *    1.  Variables CSS (design tokens)
+ *    2.  Reset y tipografía base
+ *    3.  Utilidades generales
+ *    4.  Header / navegación
+ *    5.  Footer
+ *    6.  Badges (clasificación, estado)
+ *    7.  Alertas y mensajes flash
+ *    8.  Botones
+ *    9.  Formularios
+ *    10. Tarjetas genéricas
+ *    11. Breadcrumb
+ *    12. Spinner de carga
+ *    13. Responsive helpers
+ *  Autores   : Cristóbal Yáñez y Álvaro Hormazabal
+ * ============================================================ */
 
 
-/* variables css */
+/* ── 1. VARIABLES CSS (design tokens) ───────────────────────── */
 :root {
     /* Paleta principal — inspirada en logo CineFlow */
     --primario:          #4f8ef7;
@@ -40,6 +63,8 @@
     --ocupado-borde:     #5a3a6a;
     --seleccionado:      #0d2a4a;
     --seleccionado-borde:#4f8ef7;
+    --preferencial:      #1a1a0a;
+    --preferencial-borde:#f39c12;
 
     /* Tipografía */
     --fuente:            'Segoe UI', Arial, sans-serif;
@@ -57,7 +82,7 @@
 }
 
 
-/* reset y tipografia base */
+/* ── 2. RESET Y TIPOGRAFÍA BASE ─────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -111,7 +136,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* utilidades generales */
+/* ── 3. UTILIDADES GENERALES ────────────────────────────────── */
 
 /* Contenedor centrado */
 .contenedor {
@@ -156,7 +181,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* header / navegacion */
+/* ── 4. HEADER / NAVEGACIÓN ─────────────────────────────────── */
 .site-header {
     background-color: rgba(8, 15, 26, .97);
     border-bottom:    2px solid var(--primario);
@@ -255,7 +280,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* footer */
+/* ── 5. FOOTER ──────────────────────────────────────────────── */
 .site-footer {
     background:    var(--superficie);
     border-top:    1px solid var(--borde);
@@ -284,7 +309,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* badges */
+/* ── 6. BADGES ──────────────────────────────────────────────── */
 .badge {
     display:        inline-block;
     font-size:      .7rem;
@@ -310,7 +335,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* alertas y mensajes flash */
+/* ── 7. ALERTAS Y MENSAJES FLASH ────────────────────────────── */
 .alerta {
     padding:       14px 18px;
     border-radius: var(--radio);
@@ -370,7 +395,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* botones */
+/* ── 8. BOTONES ─────────────────────────────────────────────── */
 
 /* Base */
 .btn {
@@ -436,7 +461,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-bloque { width: 100%; }
 
 
-/* formularios */
+/* ── 9. FORMULARIOS ─────────────────────────────────────────── */
 .form-group {
     display:       flex;
     flex-direction: column;
@@ -524,7 +549,7 @@ select.form-control {
 }
 
 
-/* tarjetas genericas */
+/* ── 10. TARJETAS GENÉRICAS ─────────────────────────────────── */
 .card {
     background:    var(--superficie);
     border:        1px solid var(--borde);
@@ -550,7 +575,7 @@ select.form-control {
 }
 
 
-/* breadcrumb */
+/* ── 11. BREADCRUMB ─────────────────────────────────────────── */
 .breadcrumb {
     display:     flex;
     align-items: center;
@@ -575,7 +600,7 @@ select.form-control {
 }
 
 
-/* spinner de carga */
+/* ── 12. SPINNER DE CARGA ───────────────────────────────────── */
 .spinner {
     display:       inline-block;
     width:         20px;
@@ -609,7 +634,7 @@ select.form-control {
 }
 
 
-/* responsive helpers */
+/* ── 13. RESPONSIVE HELPERS ─────────────────────────────────── */
 
 /* Ocultar en móvil */
 @media (max-width: 600px) {
@@ -643,588 +668,3 @@ select.form-control {
         grid-template-columns: 1fr !important;
     }
 }
-
-
-/* de aca para abajo: estilos que antes estaban metidos en cada .php,
-   los saque a este archivo para no repetir tanto codigo */
-
-/* index.php (inicio) */
-/* hero */
-    main { display: flex; flex-direction: column; }
-
-    .hero {
-        position:        relative;
-        flex:            1;
-        display:         grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items:     center;
-        padding:         40px 48px;
-        overflow:        hidden;
-        background:      linear-gradient(135deg, var(--oscuro) 0%, #0a1628 60%, #0d1b2e 100%);
-        gap:             32px;
-    }
-
-    /* Destellos de fondo */
-    .hero::before,
-    .hero::after {
-        content:        '';
-        position:       absolute;
-        border-radius:  50%;
-        filter:         blur(100px);
-        opacity:        .18;
-        pointer-events: none;
-    }
-    .hero::before {
-        width:      600px;
-        height:     600px;
-        background: var(--primario);
-        top:        -200px;
-        left:       -100px;
-    }
-    .hero::after {
-        width:      500px;
-        height:     500px;
-        background: #7b52d9;
-        bottom:     -150px;
-        right:      -100px;
-    }
-
-    /* Contenido central */
-    .hero-contenido {
-        position:   relative;
-        z-index:    1;
-        text-align: center;
-        max-width:  600px;
-        justify-self: center;
-    }
-
-    /* Paneles laterales decorativos */
-    .hero-lateral {
-        position:       relative;
-        z-index:        1;
-        height:         100%;
-        display:        flex;
-        flex-direction: column;
-        justify-content: center;
-        gap:            16px;
-    }
-
-    .hero-lateral-der {
-        align-items: flex-start;
-    }
-
-    .hero-lateral-izq {
-        align-items: flex-end;
-    }
-
-    /* Tarjetas flotantes decorativas */
-    .hero-card {
-        background:    rgba(13, 27, 46, .85);
-        border:        1px solid var(--borde);
-        border-radius: var(--radio-lg);
-        padding:       14px 18px;
-        backdrop-filter: blur(10px);
-        display:       flex;
-        align-items:   center;
-        gap:           12px;
-        font-size:     .85rem;
-        color:         var(--texto-suave);
-        max-width:     220px;
-        box-shadow:    0 4px 20px rgba(0,0,0,.4);
-        animation:     flotar 4s ease-in-out infinite;
-    }
-
-    .hero-card:nth-child(2) { animation-delay: 1s; }
-    .hero-card:nth-child(3) { animation-delay: 2s; }
-
-    .hero-card .icono {
-        font-size:   1.5rem;
-        flex-shrink: 0;
-    }
-
-    .hero-card strong {
-        display:    block;
-        color:      var(--texto);
-        font-size:  .88rem;
-    }
-
-    @keyframes flotar {
-        0%, 100% { transform: translateY(0px); }
-        50%       { transform: translateY(-8px); }
-    }
-
-    @media (max-width: 900px) {
-        .hero {
-            grid-template-columns: 1fr;
-            justify-items: center;
-            padding: 40px 24px;
-        }
-        .hero-lateral { display: none; }
-    }
-
-    .hero-chip {
-        display:        inline-block;
-        background:     var(--primario-suave);
-        color:          var(--primario);
-        border:         1px solid var(--primario);
-        border-radius:  50px;
-        padding:        4px 16px;
-        font-size:      .78rem;
-        font-weight:    700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        margin-bottom:  20px;
-    }
-
-    .hero h1 {
-        font-size:     3rem;
-        line-height:   1.15;
-        margin-bottom: 18px;
-        letter-spacing: -1px;
-    }
-
-    .hero h1 .acento {
-        color: var(--primario);
-    }
-
-    .hero p {
-        font-size:     1.1rem;
-        color:         var(--texto-suave);
-        max-width:     520px;
-        margin:        0 auto 32px;
-        line-height:   1.7;
-    }
-
-    .hero-acciones {
-        display:     flex;
-        gap:         14px;
-        justify-content: center;
-        flex-wrap:   wrap;
-    }
-
-    @media (max-width: 600px) {
-        .hero h1         { font-size: 2rem; }
-        .hero-acciones   { flex-direction: column; align-items: center; }
-    }
-
-
-/* cartelera.php */
-/* grilla de peliculas */
-        .cartelera-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-            padding: 24px;
-        }
-
-/* tarjeta de pelicula */
-        .pelicula-card {
-            background: var(--superficie);
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform .2s, box-shadow .2s;
-        }
-        .pelicula-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,.5);
-        }
-
-        /* Imagen / poster */
-        .poster-wrap {
-            position: relative;
-            aspect-ratio: 2/3;
-            overflow: hidden;
-            background: #111;
-        }
-        .poster-wrap img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform .3s;
-        }
-        .pelicula-card:hover .poster-wrap img { transform: scale(1.04); }
-
-        /* Badges sobre la imagen */
-        .badges {
-            position: absolute;
-            top: 10px; left: 10px;
-            display: flex; gap: 6px; flex-wrap: wrap;
-        }
-
-        /* Cuerpo de la tarjeta */
-        .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-
-        .titulo-pelicula {
-            font-size: 1.05rem; font-weight: 700;
-            color: var(--texto);
-            line-height: 1.3;
-        }
-        .meta-pelicula {
-            font-size: .82rem; color: var(--texto-suave);
-            display: flex; gap: 12px; flex-wrap: wrap;
-        }
-        .sinopsis {
-            font-size: .84rem; color: var(--texto-suave);
-            line-height: 1.5;
-            /* Limitar a 3 líneas */
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-/* selector de horarios */
-        .horarios-titulo {
-            font-size: .85rem; font-weight: 600;
-            color: var(--texto-suave);
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-
-        /* Pestañas de fecha */
-        .tabs-fechas { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-        .tab-fecha {
-            background: transparent;
-            border: 1px solid var(--borde);
-            color: var(--texto-suave);
-            border-radius: 6px;
-            padding: 4px 10px;
-            font-size: .78rem;
-            cursor: pointer;
-            transition: all .15s;
-        }
-        .tab-fecha.activa,
-        .tab-fecha:hover {
-            background: var(--primario);
-            border-color: var(--primario);
-            color: #fff;
-        }
-
-        /* Botones de horario */
-        .horarios-lista { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .btn-horario {
-            background: #2a2a2a;
-            border: 1px solid var(--borde);
-            color: var(--texto);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: .82rem;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: background .15s, border-color .15s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-        .btn-horario:hover:not(.agotado) {
-            background: var(--primario);
-            border-color: var(--primario);
-        }
-        .btn-horario .hora   { font-weight: 700; font-size: .95rem; }
-        .btn-horario .precio { font-size: .75rem; color: var(--texto-suave); }
-        .btn-horario .sala   { font-size: .72rem; color: var(--texto-suave); }
-        .btn-horario .disp   { font-size: .7rem; }
-
-        .btn-horario.agotado {
-            opacity: .4;
-            cursor: not-allowed;
-            border-style: dashed;
-        }
-
-/* sin peliculas */
-        .sin-resultados {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--texto-suave);
-        }
-        .sin-resultados h2 { font-size: 1.4rem; margin-bottom: 8px; }
-
-/* reserva.php */
-        .bc { color: var(--texto-suave); font-size: .85rem; }
-        .bc a { color: var(--primario); text-decoration: none; }
-        .reserva-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; max-width: 1100px; margin: 24px auto; padding: 0 20px; }
-        @media (max-width: 768px) { .reserva-layout { grid-template-columns: 1fr; } }
-        .funcion-info { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; display: flex; gap: 16px; margin-bottom: 20px; }
-        .funcion-poster { width: 80px; height: 120px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #111; }
-        .funcion-datos h1 { font-size: 1.2rem; margin-bottom: 8px; }
-        .funcion-meta { font-size: .85rem; color: var(--texto-suave); line-height: 1.8; }
-        .pantalla-wrap { text-align: center; margin-bottom: 28px; }
-        .pantalla { display: inline-block; background: linear-gradient(to bottom,#fff,#e0e0e0); height: 6px; width: 70%; border-radius: 3px; box-shadow: 0 0 20px rgba(255,255,255,.3); }
-        .pantalla-label { font-size: .75rem; color: var(--texto-suave); text-transform: uppercase; letter-spacing: 2px; margin-top: 6px; }
-        .mapa-scroll { overflow-x: auto; }
-        .mapa-asientos { display: flex; flex-direction: column; gap: 8px; min-width: 320px; }
-        .fila-asientos { display: flex; align-items: center; gap: 6px; }
-        .fila-label { width: 22px; text-align: center; font-size: .8rem; font-weight: 700; color: var(--texto-suave); flex-shrink: 0; }
-        .fila-asientos-grupo { display: flex; gap: 6px; flex-wrap: wrap; }
-        .asiento { width: 36px; height: 36px; border-radius: 6px 6px 3px 3px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; cursor: pointer; transition: transform .1s; user-select: none; }
-        .asiento:hover:not(.ocupado):not(.confirmado):not(.pendiente) { transform: scale(1.15); }
-        .asiento.libre { background: var(--libre); border-color: var(--libre-borde); color: #2ecc71; }
-        .asiento.ocupado, .asiento.confirmado { background: var(--ocupado); border-color: var(--ocupado-borde); color: #c0392b; cursor: not-allowed; opacity: .5; }
-        .asiento.pendiente { background: #2e2a0a; border-color: #e67e22; color: #e67e22; cursor: not-allowed; opacity: .7; }
-        .asiento.seleccionado { background: var(--seleccionado); border-color: var(--seleccionado-borde); color: #3498db; transform: scale(1.1); box-shadow: 0 0 8px rgba(52,152,219,.4); }
-        .leyenda { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; font-size: .8rem; }
-        .leyenda-item { display: flex; align-items: center; gap: 6px; }
-        .leyenda-box { width: 18px; height: 18px; border-radius: 4px; border: 2px solid; }
-        .panel-reserva { position: sticky; top: 20px; align-self: start; }
-        .panel-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; }
-        .panel-card h2 { font-size: 1rem; margin-bottom: 16px; }
-        .resumen-vacio { color: var(--texto-suave); font-size: .85rem; text-align: center; padding: 12px 0; }
-        #lista-seleccionados { list-style: none; padding: 0; margin: 0 0 12px; }
-        #lista-seleccionados li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--borde); font-size: .88rem; }
-        #lista-seleccionados li:last-child { border-bottom: none; }
-        .quitar-asiento { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; }
-        .total-precio { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; margin: 12px 0; padding-top: 8px; border-top: 1px solid var(--borde); }
-        #valor-total { color: var(--primario); }
-        .campo-cliente { margin-bottom: 12px; }
-        .campo-cliente label { display: block; font-size: .82rem; color: var(--texto-suave); margin-bottom: 5px; }
-        .campo-cliente input { width: 100%; padding: 9px 12px; background: #2a2a2a; border: 1px solid var(--borde); border-radius: 6px; color: var(--texto); font-size: .88rem; outline: none; transition: border-color .2s; box-sizing: border-box; }
-        .campo-cliente input:focus { border-color: var(--primario); }
-        .campo-cliente .hint { font-size: .72rem; color: var(--texto-suave); margin-top: 3px; }
-        hr.sep { border: none; border-top: 1px solid var(--borde); margin: 14px 0; }
-        .btn-confirmar { width: 100%; padding: 13px; background: var(--primario); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; }
-        .btn-confirmar:disabled { background: #555; cursor: not-allowed; }
-        .btn-confirmar:hover:not(:disabled) { background: #c0070f; }
-        .alerta-error { background: #2e0d0d; border: 1px solid #e74c3c; border-left: 4px solid #e74c3c; color: #e74c3c; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: .9rem; }
-
-/* confirmacion.php */
-    .confirmacion-wrap {
-        max-width: 720px;
-        margin:    40px auto;
-        padding:   0 20px 60px;
-    }
-
-/* cabecera de estado */
-    .estado-banner {
-        border-radius: var(--radio-lg);
-        padding:       28px 24px;
-        text-align:    center;
-        margin-bottom: 28px;
-        border:        1px solid;
-    }
-
-    .estado-banner.pendiente {
-        background:   var(--amarillo-oscuro);
-        border-color: var(--amarillo);
-        color:        var(--amarillo);
-    }
-
-    .estado-banner.confirmada {
-        background:   var(--verde-oscuro);
-        border-color: var(--verde);
-        color:        var(--verde);
-    }
-
-    .estado-banner.cancelada,
-    .estado-banner.expirada {
-        background:   var(--rojo-oscuro);
-        border-color: var(--rojo);
-        color:        var(--rojo);
-    }
-
-    .estado-banner.utilizada {
-        background:   rgba(52,152,219,.1);
-        border-color: #3498db;
-        color:        #3498db;
-    }
-
-    .estado-icono {
-        font-size:     3.5rem;
-        display:       block;
-        margin-bottom: 10px;
-    }
-
-    .estado-titulo {
-        font-size:     1.5rem;
-        font-weight:   700;
-        margin-bottom: 6px;
-    }
-
-    .estado-descripcion {
-        font-size:  .9rem;
-        opacity:    .85;
-    }
-
-/* codigo de reserva */
-    .codigo-grande {
-        display:         flex;
-        align-items:     center;
-        justify-content: center;
-        gap:             12px;
-        margin:          20px 0 0;
-        flex-wrap:       wrap;
-    }
-
-    .codigo-tag {
-        font-family:    var(--fuente-mono);
-        font-size:      2rem;
-        font-weight:    700;
-        letter-spacing: 4px;
-        background:     rgba(0,0,0,.3);
-        padding:        10px 24px;
-        border-radius:  var(--radio);
-        border:         1px solid currentColor;
-    }
-
-/* secciones de detalle */
-    .detalle-card {
-        background:    var(--superficie);
-        border:        1px solid var(--borde);
-        border-radius: var(--radio-lg);
-        overflow:      hidden;
-        margin-bottom: 20px;
-    }
-
-    .detalle-card-titulo {
-        padding:       14px 20px;
-        font-size:     .82rem;
-        font-weight:   700;
-        text-transform: uppercase;
-        letter-spacing: .8px;
-        color:         var(--texto-suave);
-        background:    var(--superficie-alt);
-        border-bottom: 1px solid var(--borde);
-    }
-
-    .detalle-card-body {
-        padding: 20px;
-    }
-
-    /* Fila de dato clave/valor */
-    .dato-fila {
-        display:         flex;
-        justify-content: space-between;
-        align-items:     baseline;
-        gap:             16px;
-        padding:         8px 0;
-        border-bottom:   1px solid var(--borde-suave);
-        font-size:       .9rem;
-    }
-
-    .dato-fila:last-child {
-        border-bottom: none;
-    }
-
-    .dato-clave {
-        color:      var(--texto-suave);
-        flex-shrink: 0;
-    }
-
-    .dato-valor {
-        text-align: right;
-        font-weight: 600;
-    }
-
-    /* Película con poster */
-    .pelicula-row {
-        display:     flex;
-        gap:         16px;
-        align-items: flex-start;
-    }
-
-    .conf-poster {
-        width:         70px;
-        height:        105px;
-        object-fit:    cover;
-        border-radius: var(--radio);
-        flex-shrink:   0;
-        background:    #111;
-    }
-
-    .conf-pelicula-datos {
-        flex: 1;
-    }
-
-    .conf-pelicula-datos h2 {
-        font-size:     1.1rem;
-        margin-bottom: 8px;
-    }
-
-    /* Lista de asientos */
-    .asientos-chips {
-        display:   flex;
-        flex-wrap: wrap;
-        gap:       8px;
-        padding:   16px 20px;
-    }
-
-    .chip-asiento {
-        background:    var(--seleccionado);
-        border:        1px solid var(--seleccionado-borde);
-        color:         var(--azul);
-        border-radius: var(--radio);
-        padding:       6px 14px;
-        font-weight:   700;
-        font-size:     .9rem;
-        font-family:   var(--fuente-mono);
-    }
-
-    /* Total */
-    .total-row {
-        display:         flex;
-        justify-content: space-between;
-        align-items:     center;
-        padding:         16px 20px;
-        border-top:      2px solid var(--borde);
-        font-size:       1.1rem;
-        font-weight:     700;
-    }
-
-    .total-row .monto {
-        color: var(--primario);
-        font-size: 1.3rem;
-    }
-
-    /* Contador regresivo */
-    .contador-wrap {
-        background:    rgba(243,156,18,.1);
-        border:        1px solid var(--amarillo);
-        border-radius: var(--radio);
-        padding:       14px 20px;
-        text-align:    center;
-        margin-bottom: 20px;
-        font-size:     .9rem;
-        color:         var(--amarillo);
-    }
-
-    .contador-wrap #contador {
-        font-size:   1.4rem;
-        font-weight: 700;
-        font-family: var(--fuente-mono);
-        display:     block;
-        margin-top:  4px;
-    }
-
-    /* Acciones */
-    .acciones-finales {
-        display:   flex;
-        gap:       12px;
-        flex-wrap: wrap;
-        margin-top: 28px;
-    }
-
-/* consultar-reserva.php */
-    .consulta-wrap { max-width: 760px; margin: 36px auto; padding: 0 20px 60px; }
-    .busqueda-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); padding: 28px; margin-bottom: 32px; }
-    .busqueda-card h2 { font-size: 1.1rem; margin-bottom: 20px; }
-    .input-busqueda { display: flex; gap: 10px; }
-    .input-busqueda input { flex: 1; padding: 11px 14px; background: var(--superficie-alt, #2a2a2a); border: 1px solid var(--borde); border-radius: var(--radio); color: var(--texto); font-size: .95rem; outline: none; }
-    .input-busqueda input:focus { border-color: var(--primario); }
-    .res-card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-lg); overflow: hidden; margin-bottom: 16px; transition: border-color .2s; }
-    .res-card:hover { border-color: var(--primario); }
-    .res-card-inner { display: flex; gap: 16px; padding: 16px; align-items: flex-start; }
-    .res-poster { width: 55px; height: 82px; object-fit: cover; border-radius: var(--radio); flex-shrink: 0; background: #111; }
-    .res-cuerpo { flex: 1; min-width: 0; }
-    .res-titulo { font-size: .95rem; font-weight: 700; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .res-meta { font-size: .82rem; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 8px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-    .chip { background: var(--borde-suave, #2a2a2a); border: 1px solid var(--borde); border-radius: 4px; padding: 2px 8px; font-size: .75rem; font-family: monospace; font-weight: 700; color: var(--texto-suave); }
-    .res-lateral { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; min-width: 110px; }
-    .codigo-mono { font-family: monospace; font-size: .8rem; color: var(--amarillo, #f39c12); letter-spacing: 1px; }
-    .sin-resultados-busqueda { text-align: center; padding: 40px 20px; background: var(--superficie); border: 1px dashed var(--borde); border-radius: var(--radio-lg); color: var(--texto-suave); }
