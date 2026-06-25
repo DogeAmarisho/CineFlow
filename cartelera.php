@@ -338,13 +338,13 @@ require_once __DIR__ . '/includes/header.php';
                             $agotado    = $libre === 0;
                         ?>
                             <a
-                                href="<?= $agotado ? '#' : 'reserva.php?funcion=' . (int)$f['id'] ?>"
+                                href="<?= $agotado ? '#' : 'reserva.php?funcion=' . (int)$f['funcion_id'] ?>"
                                 class="btn-horario <?= $agotado ? 'agotado' : '' ?>"
-                                title="<?= esc($f['sala_nombre']) ?> · <?= esc(ucfirst($f['idioma'])) ?>"
+                                title="<?= esc($f['sala']) ?> · <?= esc(ucfirst($f['idioma'])) ?>"
                                 <?= $agotado ? 'aria-disabled="true"' : '' ?>>
                                 <span class="hora"><?= $hora ?></span>
                                 <span class="precio"><?= $precio_fmt ?></span>
-                                <span class="sala"><?= esc($f['sala_nombre']) ?></span>
+                                <span class="sala"><?= esc($f['sala']) ?></span>
                                 <span class="disp" style="color: <?= $libre > 10 ? '#2ecc71' : ($libre > 0 ? '#f39c12' : '#e74c3c') ?>">
                                     <?= $agotado ? 'Agotado' : "{$libre} lugares" ?>
                                 </span>
@@ -407,7 +407,7 @@ function mostrarHorarios(peliId, fecha, tabEl) {
         const agotado = libre === 0;
         const precio = '$' + parseInt(f.precio, 10).toLocaleString('es-CL');
         const colorDisp = libre > 10 ? '#2ecc71' : (libre > 0 ? '#f39c12' : '#e74c3c');
-        const href = agotado ? '#' : 'reserva.php?funcion=' + f.id;
+        const href = agotado ? '#' : 'reserva.php?funcion=' + f.funcion_id;
 
         return `
             <a href="${href}"
@@ -416,7 +416,7 @@ function mostrarHorarios(peliId, fecha, tabEl) {
                ${agotado ? 'aria-disabled="true"' : ''}>
                 <span class="hora">${hora}</span>
                 <span class="precio">${precio}</span>
-                <span class="sala">${f.sala_nombre}</span>
+                <span class="sala">${f.sala}</span>
                 <span class="disp" style="color:${colorDisp}">
                     ${agotado ? 'Agotado' : libre + ' lugares'}
                 </span>

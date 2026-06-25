@@ -566,18 +566,14 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- ══ ACCIONES ══════════════════════════════════════════ -->
     <div class="acciones-finales">
-        <button onclick="window.print()" class="btn btn-secundario">
-            🖨 Imprimir comprobante
-        </button>
+    <a href="cartelera.php" class="btn btn-primario">
+        🎬 Ver cartelera
+    </a>
 
-        <a href="cartelera.php" class="btn btn-primario">
-            🎬 Ver cartelera
-        </a>
-
-        <a href="consultar-reserva.php" class="btn btn-secundario">
-            📋 Mis reservas
-        </a>
-    </div>
+    <a href="consultar-reserva.php" class="btn btn-secundario">
+        📋 Mis reservas
+    </a>
+</div>
 
 </div><!-- /confirmacion-wrap -->
 
