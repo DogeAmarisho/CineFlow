@@ -47,7 +47,7 @@ define('ENTORNO', 'desarrollo');   // ← Cambiar a 'produccion' en el servidor 
 
 // ── Base de datos (XAMPP por defecto) ────────────────────────
 define('DB_HOST',    'localhost');
-define('DB_PUERTO',  getenv('DB_PUERTO') ?: '3306');
+define('DB_PUERTO',  getenv('DB_PUERTO') ?: '3307');
 define('DB_NOMBRE',  'cineflow');
 define('DB_USUARIO', 'root');
 define('DB_CLAVE',   '');          // XAMPP local no usa contraseña por defecto
